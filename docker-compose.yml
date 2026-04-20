@@ -1,0 +1,13 @@
+services:
+  db:
+      image: postgres:latest
+      restart: always
+      ports:
+      - 5432:5432
+      environment:
+        POSTGRES_DB: hptourist
+        POSTGRES_USER: chipsoft
+        POSTGRES_PASSWORD: Ch!ppie_2026
+      volumes:
+      - ./db-data/:/var/lib/postgresql/data/
+  
