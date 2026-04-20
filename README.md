@@ -1,3 +1,7 @@
+# HP Tourist
+
+## Project omschrijving
+
 Huisartsenpraktijk Tourist Doctor Amsterdam krijgt een stroom Poolse toeristen de komende maanden.\
 De toeristen krijgen allemaal diverse medicatie van hun Poolse huisarts.\
 De toeristen spreken geen Engels en geen Nederlands.\
@@ -24,7 +28,7 @@ Aanpak:
 - Maak een MoSCoW analyse.
 - Maak een sprintplanning met taken.
 - Maak een haalbaarheidsinschatting.
-- Maak de app voor de toeristen en de scherm(en) voor de arts.
+- Maak de app voor de toeristen en de scherm(en) voor de arts
 - Gebruik Blazor!
 - Zet het werk in GitHub zodat jullie dit met elkaar kunnen delen.
 - Plan onderlinge reviews van de code.
