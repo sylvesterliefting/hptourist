@@ -1,6 +1,7 @@
 services:
   db:
-      image: postgres:latest
+      image: postgres:18
+      container_name: database
       restart: always
       ports:
       - 5432:5432
@@ -9,5 +10,5 @@ services:
         POSTGRES_USER: chipsoft
         POSTGRES_PASSWORD: Ch!ppie_2026
       volumes:
-      - ./db-data/:/var/lib/postgresql/data/
-  
+      - ./db-data/:/var/lib/postgresql/18/docker
+      
