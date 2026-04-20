@@ -34,3 +34,24 @@ Aanpak:
 - Plan onderlinge reviews van de code.
 - Schakel voor functionele en proces vragen met de stakeholder, oftewel de huisarts.
 - Geef een (eind)presentatie aan de huisarts.
+
+## Entity Framework
+
+### Voorbereiding
+
+Installeer de Entity Framework CLI tool als je die nog niet hebt met:
+
+    dotnet tool install --global dotnet-ef
+
+
+### Migraties maken
+
+Na het wijzigen van de database kun je een migratie maken met:
+
+    dotnet ef migrations add {MigratieNaam}
+
+### Migraties uitvoeren
+
+De migraties uitvoeren kan met:
+
+    dotnet ef database update
