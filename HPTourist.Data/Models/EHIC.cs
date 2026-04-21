@@ -6,7 +6,7 @@ namespace HPTourist.Data.Models
 {
    public class EHIC
    {
-      public Guid Id { get; set; }
+      public Guid Id { get; set; } = Guid.NewGuid();
 
       public string EncryptedEHICNumber { get; set; } = null!;
 

@@ -6,7 +6,7 @@ namespace HPTourist.Data.Models
 {
    public class Identification
    {
-      public Guid Id { get; set; }
+      public Guid Id { get; set; } = Guid.NewGuid();
       public Guid PatientId { get; set; }
       public Patient Patient { get; set; } = null!;
       public string CountryCode { get; set; } = null!;
