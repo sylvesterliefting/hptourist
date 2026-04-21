@@ -1,4 +1,4 @@
-namespace HPTourist.Models;
+namespace HPTourist.Data.Models;
 
 public class Medicine
 {

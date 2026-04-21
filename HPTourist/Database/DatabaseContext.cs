@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using HPTourist.Models;
 using HPTourist.Data.Models;
 
 namespace HPTourist.Database;
