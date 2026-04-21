@@ -3,9 +3,9 @@ namespace HPTourist.Data.Models;
 public class Medicine
 {
     public Guid Id { get; set; } 
-    required public string Name { get; set; } 
-    required public string AtcCode { get; set; }
-    required public string ActiveSubstance { get; set; }
-    required public string PharmaceuticalForm { get; set; }
+    public string Name { get; set; } = default!;
+    public string AtcCode { get; set; } = default!;
+    public string ActiveSubstance { get; set; } = default!;
+    public string PharmaceuticalForm { get; set; } = default!;
     
 }

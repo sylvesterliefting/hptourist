@@ -235,7 +235,7 @@ namespace HPTourist.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("DoctorId")
+                    b.Property<Guid>("EmployeeId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("PatientId")
@@ -245,6 +245,12 @@ namespace HPTourist.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PrescriptionRequestId");
 
                     b.ToTable("Prescriptions");
                 });
@@ -265,6 +271,8 @@ namespace HPTourist.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("PrescriptionRequests");
                 });
@@ -336,6 +344,44 @@ namespace HPTourist.Migrations
                     b.Navigation("Practice");
 
                     b.Navigation("PreferredLanguage");
+                });
+
+            modelBuilder.Entity("HPTourist.Data.Models.Prescription", b =>
+                {
+                    b.HasOne("HPTourist.Data.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HPTourist.Data.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HPTourist.Data.Models.PrescriptionRequest", "PrescriptionRequest")
+                        .WithMany()
+                        .HasForeignKey("PrescriptionRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("PrescriptionRequest");
+                });
+
+            modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
+                {
+                    b.HasOne("HPTourist.Data.Models.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Identification", b =>
