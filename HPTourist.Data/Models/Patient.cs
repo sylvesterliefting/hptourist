@@ -18,5 +18,9 @@ namespace HPTourist.Data.Models
       public Language PreferredLanguage { get; set; } = null!;
       public Identification? Identification { get; set; }
       public EHIC? EHIC { get; set; }
+      public ICollection<Allergy> Allergies { get; set; } = [];
+      public BloodType? BloodType { get; set; }
+      public RhFactor? RhFactor { get; set; }
+      public float? Weight { get; set; }
    }
 }
