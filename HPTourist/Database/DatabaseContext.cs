@@ -5,15 +5,14 @@ namespace HPTourist.Database;
 
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
-    public DbSet<PrescriptionRequest> PrescriptionRequests { get; set; } = default!;
-
-    public DbSet<Prescription> Prescriptions { get; set; } = default!;
-    public DbSet<Practice> Practices => Set<Practice>();
-    public DbSet<Employee> Employees => Set<Employee>();
-    public DbSet<Patient> Patients => Set<Patient>();
-    public DbSet<Language> Languages => Set<Language>();
-    public DbSet<Identification> Identificatios => Set<Identification>();
-    public DbSet<EHIC> EHICs => Set<EHIC>();
+   public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
+   public DbSet<Prescription> Prescriptions => Set<Prescription>();
+   public DbSet<Practice> Practices => Set<Practice>();
+   public DbSet<Employee> Employees => Set<Employee>();
+   public DbSet<Patient> Patients => Set<Patient>();
+   public DbSet<Language> Languages => Set<Language>();
+   public DbSet<Identification> Identificatios => Set<Identification>();
+   public DbSet<EHIC> EHICs => Set<EHIC>();
 
    protected override void OnModelCreating(ModelBuilder modelBuilder)
    {
