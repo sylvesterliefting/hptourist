@@ -1,0 +1,35 @@
+@page "/patient-information"
+@using HPTourist.Data.Models
+
+<h3>Patiënt Informatie</h3>
+
+<EditForm Model="@Patient" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="FirstName">Voornaam</label>
+        <InputText id="FirstName" class="form-control" @bind-Value="Patient.FirstName" />
+    </div>
+
+    <div class="form-group">
+        <label for="LastName">Achternaam</label>
+        <InputText id="LastName" class="form-control" @bind-Value="Patient.LastName" />
+    </div>
+
+    <div class="form-group">
+        <label for="DateOfBirth">Geboortedatum</label>
+        <InputDate id="DateOfBirth" class="form-control" @bind-Value="Patient.DateOfBirth" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Opslaan</button>
+</EditForm>
+
+@code {
+    private Patient Patient { get; set; } = new Patient();
+
+    private void HandleValidSubmit()
+    {
+        // TODO: opslaan naar database
+    }
+}
