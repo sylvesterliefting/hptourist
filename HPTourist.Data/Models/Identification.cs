@@ -6,8 +6,8 @@ namespace HPTourist.Data.Models
 {
    public class Identification
    {
-      public int Id { get; set; }
-      public int PatientId { get; set; }
+      public Guid Id { get; set; }
+      public Guid PatientId { get; set; }
       public Patient Patient { get; set; } = null!;
       public string CountryCode { get; set; } = null!;
       public string DocumentType { get; set; } = null!;

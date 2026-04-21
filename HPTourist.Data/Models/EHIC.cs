@@ -6,13 +6,13 @@ namespace HPTourist.Data.Models
 {
    public class EHIC
    {
-      public int Id { get; set; }
+      public Guid Id { get; set; }
 
       public string EncryptedEHICNumber { get; set; } = null!;
 
       public DateTime ExpiryDate { get; set; }
 
-      public int IdentificationId { get; set; }
+      public Guid IdentificationId { get; set; }
       public Identification Identification { get; set; } = null!;
    }
 }
