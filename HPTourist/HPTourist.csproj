@@ -19,4 +19,8 @@
     <Folder Include="Database\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HPTourist.Data\HPTourist.Data.csproj" />
+  </ItemGroup>
+
 </Project>
