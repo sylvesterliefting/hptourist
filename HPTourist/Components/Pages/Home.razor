@@ -1,7 +1,14 @@
-﻿@page "/"
+@page "/"
 
 <PageTitle>Home</PageTitle>
+
+<FlashMessage Message="@Msg" />
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Msg { get; set; }
+}

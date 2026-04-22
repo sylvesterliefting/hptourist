@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using HPTourist.Database;
 using HPTourist.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,21 +10,22 @@ namespace HPTourist.Services;
 
 public sealed class PatientAccountService(
     DatabaseContext db,
-    IPasswordHasher<Patient> hasher) : IPatientAccountService
+    IPasswordHasher<Patient> hasher,
+    IHttpContextAccessor httpContextAccessor) : IPatientAccountService
 {
-    public async Task<RegistrationResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
+    public async Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
     {
         var email = form.Email.Trim().ToLowerInvariant();
         var ehic = form.EhicNumber.Trim().ToUpperInvariant();
 
         if (await db.Patients.AnyAsync(p => p.Email == email, ct))
         {
-            return RegistrationResult.Fail("An account with this email already exists.");
+            return AccountResult.Fail("An account with this email already exists.");
         }
 
         if (await db.Patients.AnyAsync(p => p.EhicNumber == ehic, ct))
         {
-            return RegistrationResult.Fail("An account with this EHIC number already exists.");
+            return AccountResult.Fail("An account with this EHIC number already exists.");
         }
 
         var patient = new Patient
@@ -45,11 +47,28 @@ public sealed class PatientAccountService(
         }
         catch (DbUpdateException)
         {
-            return RegistrationResult.Fail("An account with this email or EHIC number already exists.");
+            return AccountResult.Fail("An account with this email or EHIC number already exists.");
         }
 
-        return RegistrationResult.Ok(patient);
+        var principal = BuildPrincipal(patient);
+        await SignInAsync(principal);
+        return AccountResult.Ok();
     }
+
+    public async Task<AccountResult> LoginAsync(PatientLoginForm form, CancellationToken ct = default)
+    {
+        var patient = await ValidateCredentialsAsync(form, ct);
+        if (patient is null)
+        {
+            return AccountResult.Fail("Invalid email or password.");
+        }
+
+        var principal = BuildPrincipal(patient);
+        await SignInAsync(principal);
+        return AccountResult.Ok();
+    }
+
+    public Task LogoutAsync() => SignOutAsync();
 
     public async Task<Patient?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default)
     {
@@ -89,4 +108,14 @@ public sealed class PatientAccountService(
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         return new ClaimsPrincipal(identity);
     }
+
+    public Task SignInAsync(ClaimsPrincipal principal) =>
+        RequireHttpContext().SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    public Task SignOutAsync() =>
+        RequireHttpContext().SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+    private HttpContext RequireHttpContext() =>
+        httpContextAccessor.HttpContext
+            ?? throw new InvalidOperationException("No active HttpContext — sign-in/out must happen during an HTTP request.");
 }

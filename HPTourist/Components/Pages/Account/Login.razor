@@ -37,24 +37,19 @@
     [SupplyParameterFromForm]
     public PatientLoginForm? PatientLogin { get; set; }
 
-    [CascadingParameter]
-    public HttpContext HttpContext { get; set; } = default!;
-
     private string? _error;
 
     protected override void OnInitialized() => PatientLogin ??= new PatientLoginForm();
 
     private async Task HandleLoginAsync()
     {
-        Patient? patient = await AccountService.ValidateCredentialsAsync(PatientLogin!);
-        if (patient is null)
+        AccountResult result = await AccountService.LoginAsync(PatientLogin!);
+        if (!result.Success)
         {
-            _error = "Invalid email or password.";
+            _error = result.ErrorMessage;
             return;
         }
 
-        System.Security.Claims.ClaimsPrincipal? principal = AccountService.BuildPrincipal(patient);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-        Navigation.NavigateTo("/", forceLoad: true);
+        Navigation.NavigateTo("/?msg=loggedIn", forceLoad: true);
     }
 }

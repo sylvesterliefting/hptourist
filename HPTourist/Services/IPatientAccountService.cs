@@ -5,9 +5,19 @@ namespace HPTourist.Services;
 
 public interface IPatientAccountService
 {
-    Task<RegistrationResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default);
+    // High-level operations — the only ones the Razor pages need to know about.
+    Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default);
 
+    Task<AccountResult> LoginAsync(PatientLoginForm form, CancellationToken ct = default);
+
+    Task LogoutAsync();
+
+    // Atomic operations — composed by the high-level methods above, exposed for reuse/testing.
     Task<Patient?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default);
 
     ClaimsPrincipal BuildPrincipal(Patient patient);
+
+    Task SignInAsync(ClaimsPrincipal principal);
+
+    Task SignOutAsync();
 }

@@ -14,6 +14,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddDbContextPool<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
 builder.Services.AddSingleton<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
 

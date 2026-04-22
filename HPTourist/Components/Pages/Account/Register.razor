@@ -69,24 +69,19 @@
     [SupplyParameterFromForm]
     public PatientRegistrationForm? PatientRegistration { get; set; }
 
-    [CascadingParameter]
-    public HttpContext HttpContext { get; set; } = default!;
-
     private string? _error;
 
     protected override void OnInitialized() => PatientRegistration ??= new PatientRegistrationForm();
 
     private async Task HandleRegisterAsync()
     {
-        RegistrationResult? result = await AccountService.RegisterAsync(PatientRegistration!);
-        if (!result.Success || result.Patient is null)
+        AccountResult result = await AccountService.RegisterAsync(PatientRegistration!);
+        if (!result.Success)
         {
             _error = result.ErrorMessage;
             return;
         }
 
-        System.Security.Claims.ClaimsPrincipal? principal = AccountService.BuildPrincipal(result.Patient);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-        Navigation.NavigateTo("/", forceLoad: true);
+        Navigation.NavigateTo("/?msg=registered", forceLoad: true);
     }
 }
