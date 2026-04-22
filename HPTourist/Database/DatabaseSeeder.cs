@@ -8,13 +8,11 @@ public class DatabaseSeeder
     public static void SeedDatabase(IServiceProvider serviceProvider)
     {
         using DatabaseContext databaseContext = new DatabaseContext(serviceProvider.GetRequiredService<DbContextOptions<DatabaseContext>>()) ?? throw new NullReferenceException("DatabaseContext is null.");
-
+        
         var language = new Language()
         {
             Name = "English"
         };
-
-        databaseContext.Languages.Add(language);
 
         var practice = new Practice()
         {
@@ -22,20 +20,16 @@ public class DatabaseSeeder
             Address = "Teststreet 1"
         };
 
-        databaseContext.Practices.Add(practice);
-
         var patient = new Patient()
         {
             FirstName = "Test",
             LastName = "Kees",
             Email = "test",
-            DateOfBirth = DateTime.Now.AddYears(-20),
+            DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Gender = Gender.Unknown,
             Practice = practice,
             PreferredLanguage = language,
         };
-
-        databaseContext.Patients.Add(patient);
 
         var medicine = new Medicine()
         {
@@ -50,10 +44,28 @@ public class DatabaseSeeder
             Patient = patient,
             Medicines = [medicine],
             RequestStatus = PrescriptionRequest.Status.Pending,
-            Date = DateTime.Now
+            Date = DateTime.UtcNow
         };
 
-        databaseContext.PrescriptionRequests.AddRange(prescriptionRequest);
+        if (!databaseContext.Languages.Any())
+        {
+            databaseContext.Languages.Add(language);
+        }
+
+        if (!databaseContext.Practices.Any())
+        {
+            databaseContext.Practices.Add(practice);
+        }
+
+        if (!databaseContext.Patients.Any())
+        {
+            databaseContext.Patients.Add(patient);
+        }
+
+        if (!databaseContext.PrescriptionRequests.Any())
+        {
+            databaseContext.PrescriptionRequests.AddRange(prescriptionRequest);
+        }
 
         databaseContext.SaveChanges();
     }
