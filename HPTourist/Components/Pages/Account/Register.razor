@@ -1,0 +1,92 @@
+@page "/register"
+@inject IPatientAccountService AccountService
+@inject NavigationManager Navigation
+
+<PageTitle>Register</PageTitle>
+
+<h1>Register</h1>
+
+<p>Create an account to request repeat prescriptions from Huisartsenpraktijk Tourist Doctor Amsterdam.</p>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <div class="alert alert-danger" role="alert">@_error</div>
+}
+
+@if (PatientRegistration is not null)
+{
+    <EditForm Model="PatientRegistration" FormName="register" OnValidSubmit="HandleRegisterAsync" method="post">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" role="alert" />
+
+        <div class="mb-3">
+            <label for="first-name" class="form-label">First name</label>
+            <InputText id="first-name" @bind-Value="PatientRegistration.FirstName" class="form-control" autocomplete="given-name" />
+            <ValidationMessage For="() => PatientRegistration.FirstName" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="last-name" class="form-label">Last name</label>
+            <InputText id="last-name" @bind-Value="PatientRegistration.LastName" class="form-control" autocomplete="family-name" />
+            <ValidationMessage For="() => PatientRegistration.LastName" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="dob" class="form-label">Date of birth</label>
+            <InputDate id="dob" @bind-Value="PatientRegistration.DateOfBirth" class="form-control" autocomplete="bday" />
+            <ValidationMessage For="() => PatientRegistration.DateOfBirth" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="ehic" class="form-label">EHIC number</label>
+            <InputText id="ehic" @bind-Value="PatientRegistration.EhicNumber" class="form-control" maxlength="20" placeholder="20 alphanumeric characters" />
+            <ValidationMessage For="() => PatientRegistration.EhicNumber" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" @bind-Value="PatientRegistration.Email" type="email" class="form-control" autocomplete="email" />
+            <ValidationMessage For="() => PatientRegistration.Email" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" @bind-Value="PatientRegistration.Password" type="password" class="form-control" autocomplete="new-password" />
+            <ValidationMessage For="() => PatientRegistration.Password" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password-confirm" class="form-label">Confirm password</label>
+            <InputText id="password-confirm" @bind-Value="PatientRegistration.PasswordConfirm" type="password" class="form-control" autocomplete="new-password" />
+            <ValidationMessage For="() => PatientRegistration.PasswordConfirm" class="text-danger" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </EditForm>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    public PatientRegistrationForm? PatientRegistration { get; set; }
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    private string? _error;
+
+    protected override void OnInitialized() => PatientRegistration ??= new PatientRegistrationForm();
+
+    private async Task HandleRegisterAsync()
+    {
+        RegistrationResult? result = await AccountService.RegisterAsync(PatientRegistration!);
+        if (!result.Success || result.Patient is null)
+        {
+            _error = result.ErrorMessage;
+            return;
+        }
+
+        System.Security.Claims.ClaimsPrincipal? principal = AccountService.BuildPrincipal(result.Patient);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}

@@ -1,0 +1,60 @@
+@page "/login"
+@inject IPatientAccountService AccountService
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <div class="alert alert-danger" role="alert">@_error</div>
+}
+
+@if (PatientLogin is not null)
+{
+    <EditForm  method="post" Model="PatientLogin" FormName="login" OnValidSubmit="HandleLoginAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" role="alert" />
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" @bind-Value="PatientLogin.Email" type="email" class="form-control" autocomplete="email" />
+            <ValidationMessage For="() => PatientLogin.Email" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" @bind-Value="PatientLogin.Password" type="password" class="form-control" autocomplete="current-password" />
+            <ValidationMessage For="() => PatientLogin.Password" class="text-danger" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log in</button>
+    </EditForm>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    public PatientLoginForm? PatientLogin { get; set; }
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    private string? _error;
+
+    protected override void OnInitialized() => PatientLogin ??= new PatientLoginForm();
+
+    private async Task HandleLoginAsync()
+    {
+        Patient? patient = await AccountService.ValidateCredentialsAsync(PatientLogin!);
+        if (patient is null)
+        {
+            _error = "Invalid email or password.";
+            return;
+        }
+
+        System.Security.Claims.ClaimsPrincipal? principal = AccountService.BuildPrincipal(patient);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}
