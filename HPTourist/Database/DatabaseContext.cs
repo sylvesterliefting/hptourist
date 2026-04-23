@@ -49,6 +49,19 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.LastName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.Gender).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.BloodType).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.RhFactor).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.Weight).HasColumnType("real");
+
+            entity.HasMany(p => p.Allergies)
+                  .WithOne()
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Allergy>(entity =>
+        {
+            entity.Property(a => a.Substance).IsRequired().HasMaxLength(100);
+            entity.Property(a => a.Reaction).HasMaxLength(250);
         });
 
         // EHIC numbers are unique across the EU.
