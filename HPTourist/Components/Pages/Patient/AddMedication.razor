@@ -1,0 +1,82 @@
+@page "/patient/medication/add"
+@using Microsoft.EntityFrameworkCore
+@using HPTourist.Data.Models
+@inject DatabaseContext DbContext
+@inject NavigationManager Navigation
+
+<h3>Medicatie Toevoegen</h3>
+
+<p class="text-muted">Voeg hier uw medicatie toe die u al gebruikt.</p>
+
+<EditForm Model="@medicine" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Medicatienaam</label>
+        <InputText id="name" class="form-control" @bind-Value="medicine.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="activeSubstance" class="form-label">Werkzame Stof</label>
+        <InputText id="activeSubstance" class="form-control" @bind-Value="medicine.ActiveSubstance" />
+    </div>
+
+    <div class="mb-3">
+        <label for="atcCode" class="form-label">ATC Code (optioneel)</label>
+        <InputText id="atcCode" class="form-control" @bind-Value="medicine.AtcCode" />
+    </div>
+
+    <div class="mb-3">
+        <label for="pharmaceuticalForm" class="form-label">Farmaceutische Vorm</label>
+        <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicine.PharmaceuticalForm">
+            <option value="">Selecteer vorm...</option>
+            <option value="Tablet">Tablet</option>
+            <option value="Capsule">Capsule</option>
+            <option value="Injectie">Injectie</option>
+            <option value="Inhalator">Inhalator</option>
+            <option value="Zalf">Zalf</option>
+            <option value="Drank">Drank</option>
+            <option value="Druppels">Druppels</option>
+            <option value="Pleister">Pleister</option>
+            <option value="Zetpil">Zetpil</option>
+            <option value="Overige">Overige</option>
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <a href="/patient/medication" class="btn btn-secondary ms-2">Annuleren</a>
+    </div>
+</EditForm>
+
+@code {
+    private Medicine medicine = new Medicine();
+    private Patient? currentPatient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentPatient = await DbContext.Patients.FirstOrDefaultAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentPatient == null) return;
+
+        medicine.Id = Guid.NewGuid();
+
+        var prescriptionRequest = new PrescriptionRequest
+        {
+            Id = Guid.NewGuid(),
+            Patient = currentPatient,
+            Medicines = new List<Medicine> { medicine },
+            RequestStatus = PrescriptionRequest.Status.Pending,
+            Date = DateTime.Now
+        };
+
+        DbContext.PrescriptionRequests.Add(prescriptionRequest);
+        await DbContext.SaveChangesAsync();
+
+        Navigation.NavigateTo("/patient/medication");
+    }
+}

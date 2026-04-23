@@ -1,0 +1,137 @@
+@page "/patient/medication"
+@using Microsoft.EntityFrameworkCore
+@using HPTourist.Data.Models
+@inject DatabaseContext DbContext
+
+<h3>Mijn Medicatie</h3>
+
+@if (currentPatient == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="medication-section">
+        <h4>Huidige Medicatie</h4>
+        
+        @if (currentPatient.Prescriptions != null && currentPatient.Prescriptions.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Medicatie</th>
+                        <th>Werkzame Stof</th>
+                        <th>Vorm</th>
+                        <th>Voorschrijfdatum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prescription in currentPatient.Prescriptions)
+                    {
+                        @if (prescription.Medicines != null)
+                        {
+                            @foreach (var medicine in prescription.Medicines)
+                            {
+                                <tr>
+                                    <td>@medicine.Name</td>
+                                    <td>@medicine.ActiveSubstance</td>
+                                    <td>@medicine.PharmaceuticalForm</td>
+                                    <td>@prescription.Date.ToString("dd-MM-yyyy")</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">U heeft geen voorgeschreven medicatie.</p>
+        }
+    </div>
+
+    <div class="medication-section mt-4">
+        <h4>Handmatig Toegevoegde Medicatie</h4>
+        
+        @if (currentPatient.PrescriptionRequests != null && currentPatient.PrescriptionRequests.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Medicatie</th>
+                        <th>Werkzame Stof</th>
+                        <th>Vorm</th>
+                        <th>Status</th>
+                        <th>Datum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in currentPatient.PrescriptionRequests)
+                    {
+                        @if (request.Medicines != null)
+                        {
+                            @foreach (var medicine in request.Medicines)
+                            {
+                                <tr>
+                                    <td>@medicine.Name</td>
+                                    <td>@medicine.ActiveSubstance</td>
+                                    <td>@medicine.PharmaceuticalForm</td>
+                                    <td>
+                                        <span class="badge bg-@GetStatusColor(request.RequestStatus)">
+                                            @GetStatusText(request.RequestStatus)
+                                        </span>
+                                    </td>
+                                    <td>@request.Date.ToString("dd-MM-yyyy")</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">U heeft geen handmatige medicatie toegevoegd.</p>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a href="/patient/medication/add" class="btn btn-primary">Medicatie Toevoegen</a>
+    </div>
+}
+
+@code {
+    private Patient? currentPatient;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentPatient = await DbContext.Patients
+            .Include(p => p.Prescriptions)
+                .ThenInclude(pr => pr.Medicines)
+            .Include(p => p.PrescriptionRequests)
+                .ThenInclude(pr => pr.Medicines)
+            .FirstOrDefaultAsync();
+    }
+
+    private string GetStatusColor(PrescriptionRequest.Status status)
+    {
+        return status switch
+        {
+            PrescriptionRequest.Status.Pending => "warning",
+            PrescriptionRequest.Status.Processed => "success",
+            PrescriptionRequest.Status.Rejected => "danger",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusText(PrescriptionRequest.Status status)
+    {
+        return status switch
+        {
+            PrescriptionRequest.Status.Pending => "In behandeling",
+            PrescriptionRequest.Status.Processed => "Goedgekeurd",
+            PrescriptionRequest.Status.Rejected => "Afgewezen",
+            _ => "Onbekend"
+        };
+    }
+}
