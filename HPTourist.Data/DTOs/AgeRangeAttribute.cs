@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HPTourist.Models;
+namespace HPTourist.Data.DTOs;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public sealed class AgeRangeAttribute : ValidationAttribute

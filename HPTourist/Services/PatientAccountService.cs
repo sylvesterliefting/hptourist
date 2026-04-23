@@ -1,6 +1,7 @@
 using System.Security.Claims;
+using HPTourist.Data.DTOs;
+using HPTourist.Data.Models;
 using HPTourist.Database;
-using HPTourist.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +11,7 @@ namespace HPTourist.Services;
 
 public sealed class PatientAccountService(
     DatabaseContext db,
-    IPasswordHasher<Patient> hasher,
+    IPasswordHasher<User> hasher,
     IHttpContextAccessor httpContextAccessor) : IPatientAccountService
 {
     public async Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
@@ -18,68 +19,87 @@ public sealed class PatientAccountService(
         var email = form.Email.Trim().ToLowerInvariant();
         var ehic = form.EhicNumber.Trim().ToUpperInvariant();
 
-        if (await db.Patients.AnyAsync(p => p.Email == email, ct))
+        if (await db.Users.AnyAsync(u => u.Email == email, ct))
         {
             return AccountResult.Fail("An account with this email already exists.");
         }
 
-        if (await db.Patients.AnyAsync(p => p.EhicNumber == ehic, ct))
+        if (await db.EHICs.AnyAsync(e => e.EncryptedEHICNumber == ehic, ct))
         {
             return AccountResult.Fail("An account with this EHIC number already exists.");
         }
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
 
         var patient = new Patient
         {
             FirstName = form.FirstName.Trim(),
             LastName = form.LastName.Trim(),
-            DateOfBirth = form.DateOfBirth!.Value,
-            EhicNumber = ehic,
-            Email = email,
-            PasswordHash = string.Empty,
-            Role = UserRole.Patient,
+            DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
+            Gender = form.Gender!.Value,
+            PracticeId = SeededIds.TouristDoctorAmsterdamPractice,
+            EHIC = new EHIC
+            {
+                EncryptedEHICNumber = ehic,
+                ExpiryDate = DateTime.SpecifyKind(form.EhicExpiryDate!.Value, DateTimeKind.Utc),
+            },
         };
-        patient.PasswordHash = hasher.HashPassword(patient, form.Password);
-
         db.Patients.Add(patient);
+
+        var user = new User
+        {
+            Email = email,
+            Role = UserRole.Patient,
+            PatientId = patient.Id,
+            PasswordHash = string.Empty,
+        };
+        user.PasswordHash = hasher.HashPassword(user, form.Password);
+        db.Users.Add(user);
+
         try
         {
             await db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
         }
         catch (DbUpdateException)
         {
             return AccountResult.Fail("An account with this email or EHIC number already exists.");
         }
 
-        var principal = BuildPrincipal(patient);
+        user.Patient = patient;
+        var principal = BuildPrincipal(user);
         await SignInAsync(principal);
         return AccountResult.Ok();
     }
 
     public async Task<AccountResult> LoginAsync(PatientLoginForm form, CancellationToken ct = default)
     {
-        var patient = await ValidateCredentialsAsync(form, ct);
-        if (patient is null)
+        var user = await ValidateCredentialsAsync(form, ct);
+        if (user is null)
         {
             return AccountResult.Fail("Invalid email or password.");
         }
 
-        var principal = BuildPrincipal(patient);
+        var principal = BuildPrincipal(user);
         await SignInAsync(principal);
         return AccountResult.Ok();
     }
 
     public Task LogoutAsync() => SignOutAsync();
 
-    public async Task<Patient?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default)
+    public async Task<User?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default)
     {
         var email = form.Email.Trim().ToLowerInvariant();
-        var patient = await db.Patients.SingleOrDefaultAsync(p => p.Email == email, ct);
-        if (patient is null)
+        var user = await db.Users
+            .Include(u => u.Patient)
+            .Include(u => u.Employee)
+            .SingleOrDefaultAsync(u => u.Email == email, ct);
+        if (user is null)
         {
             return null;
         }
 
-        var result = hasher.VerifyHashedPassword(patient, patient.PasswordHash, form.Password);
+        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, form.Password);
         if (result == PasswordVerificationResult.Failed)
         {
             return null;
@@ -87,23 +107,33 @@ public sealed class PatientAccountService(
 
         if (result == PasswordVerificationResult.SuccessRehashNeeded)
         {
-            patient.PasswordHash = hasher.HashPassword(patient, form.Password);
+            user.PasswordHash = hasher.HashPassword(user, form.Password);
             await db.SaveChangesAsync(ct);
         }
 
-        return patient;
+        return user;
     }
 
-    public ClaimsPrincipal BuildPrincipal(Patient patient)
+    public ClaimsPrincipal BuildPrincipal(User user)
     {
-        Claim[] claims =
-        [
-            new(ClaimTypes.NameIdentifier, patient.Id.ToString()),
-            new(ClaimTypes.Name, patient.Email),
-            new(ClaimTypes.GivenName, patient.FirstName),
-            new(ClaimTypes.Surname, patient.LastName),
-            new(ClaimTypes.Role, patient.Role.ToString()),
-        ];
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString()),
+        };
+
+        if (user.Patient is not null)
+        {
+            claims.Add(new Claim("PatientId", user.Patient.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.GivenName, user.Patient.FirstName));
+            claims.Add(new Claim(ClaimTypes.Surname, user.Patient.LastName));
+        }
+        else if (user.Employee is not null)
+        {
+            claims.Add(new Claim("EmployeeId", user.Employee.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.GivenName, user.Employee.Name));
+        }
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         return new ClaimsPrincipal(identity);

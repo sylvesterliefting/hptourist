@@ -1,69 +1,77 @@
-using HPTourist.Models;
-using Microsoft.EntityFrameworkCore;
 using HPTourist.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HPTourist.Database;
 
 public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
-<<<<<<< HEAD
+    public DbSet<User> Users => Set<User>();
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Practice> Practices => Set<Practice>();
+    public DbSet<Language> Languages => Set<Language>();
+    public DbSet<Identification> Identificatios => Set<Identification>();
+    public DbSet<EHIC> EHICs => Set<EHIC>();
+    public DbSet<Prescription> Prescriptions => Set<Prescription>();
+    public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(u => u.Email).IsRequired().HasMaxLength(254);
+            entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(32);
+            entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+            entity.HasIndex(u => u.Email).IsUnique();
+
+            entity.HasOne(u => u.Patient)
+                  .WithOne()
+                  .HasForeignKey<User>(u => u.PatientId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(u => u.Employee)
+                  .WithOne()
+                  .HasForeignKey<User>(u => u.EmployeeId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_Users_OneOfPatientOrEmployee",
+                "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)"));
+        });
+
         modelBuilder.Entity<Patient>(entity =>
         {
-            entity.Property(p => p.Id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
-
             entity.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.LastName).IsRequired().HasMaxLength(100);
-            entity.Property(p => p.EhicNumber).IsRequired().HasMaxLength(20);
-            entity.Property(p => p.Email).IsRequired().HasMaxLength(254);
-            entity.Property(p => p.PasswordHash).IsRequired();
+            entity.Property(p => p.Gender).HasConversion<string>().HasMaxLength(16);
+        });
 
-            entity.Property(p => p.Role).HasConversion<string>().HasMaxLength(32);
+        // EHIC numbers are unique across the EU.
+        modelBuilder.Entity<EHIC>()
+                    .HasIndex(e => e.EncryptedEHICNumber)
+                    .IsUnique();
 
-            entity.HasIndex(p => p.Email).IsUnique();
-            entity.HasIndex(p => p.EhicNumber).IsUnique();
+        // Identification uniqueness is based on a single DocumentNumber per country.
+        // PK name is explicitly "PK_Identifications" (correct spelling) because
+        // migration 20260421130549_Primary_Key_DefaultedTo_Guid recreated it under that
+        // name while the table kept the typo'd name "Identificatios". Without this
+        // annotation EF would assume the convention-based "PK_Identificatios" and
+        // generate bogus drop/add-PK operations in future migrations.
+        modelBuilder.Entity<Identification>(entity =>
+        {
+            entity.HasKey(i => i.Id).HasName("PK_Identifications");
+            entity.HasIndex(e => new { e.CountryCode, e.EncryptedDocumentNumber }).IsUnique();
+        });
+
+        modelBuilder.Entity<Practice>().HasData(new Practice
+        {
+            Id = SeededIds.TouristDoctorAmsterdamPractice,
+            Name = "Huisartsenpraktijk Tourist Doctor Amsterdam",
+            Address = "Damrak 1, 1012 LG Amsterdam",
         });
     }
-=======
-   public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
-   public DbSet<Prescription> Prescriptions => Set<Prescription>();
-   public DbSet<Practice> Practices => Set<Practice>();
-   public DbSet<Employee> Employees => Set<Employee>();
-   public DbSet<Patient> Patients => Set<Patient>();
-   public DbSet<Language> Languages => Set<Language>();
-   public DbSet<Identification> Identificatios => Set<Identification>();
-   public DbSet<EHIC> EHICs => Set<EHIC>();
-
-   protected override void OnModelCreating(ModelBuilder modelBuilder)
-   {
-      base.OnModelCreating(modelBuilder);
-
-      //EHIC numbers are unique across the EU
-      modelBuilder.Entity<EHIC>()
-      .HasIndex(e => e.IdentificationId)
-      .IsUnique();
-
-      //Identification uniqueness is based on a single DocumentNumber per country
-      modelBuilder.Entity<Identification>()
-      .HasIndex(e => new { e.CountryCode, e.EncryptedDocumentNumber })
-      .IsUnique();
-
-        
-      modelBuilder.Entity<Patient>(entity =>
-      {
-          entity.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
-          entity.Property(p => p.LastName).IsRequired().HasMaxLength(100);
-          entity.Property(p => p.Email).IsRequired().HasMaxLength(254);
-
-          entity.HasIndex(p => p.Email).IsUnique();
-      });
-
-   }
->>>>>>> main
 }

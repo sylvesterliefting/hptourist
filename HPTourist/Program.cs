@@ -1,6 +1,6 @@
 using HPTourist.Components;
+using HPTourist.Data.Models;
 using HPTourist.Database;
-using HPTourist.Models;
 using HPTourist.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +16,7 @@ builder.Services.AddDbContextPool<DatabaseContext>(options => options.UseNpgsql(
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
-builder.Services.AddSingleton<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

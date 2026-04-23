@@ -38,9 +38,27 @@
         </div>
 
         <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            <InputSelect id="gender" @bind-Value="PatientRegistration.Gender" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach (var g in Enum.GetValues<Gender>())
+                {
+                    <option value="@g">@g</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => PatientRegistration.Gender" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
             <label for="ehic" class="form-label">EHIC number</label>
             <InputText id="ehic" @bind-Value="PatientRegistration.EhicNumber" class="form-control" maxlength="20" placeholder="20 alphanumeric characters" />
             <ValidationMessage For="() => PatientRegistration.EhicNumber" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <label for="ehic-expiry" class="form-label">EHIC expiry date</label>
+            <InputDate id="ehic-expiry" @bind-Value="PatientRegistration.EhicExpiryDate" class="form-control" />
+            <ValidationMessage For="() => PatientRegistration.EhicExpiryDate" class="text-danger" />
         </div>
 
         <div class="mb-3">

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using HPTourist.Data.Models;
 
-namespace HPTourist.Models;
+namespace HPTourist.Data.DTOs;
 
 public class PatientRegistrationForm
 {
@@ -20,10 +21,19 @@ public class PatientRegistrationForm
     [Display(Name = "Date of birth")]
     public DateOnly? DateOfBirth { get; set; }
 
+    [Required(ErrorMessage = "Please select a gender.")]
+    public Gender? Gender { get; set; }
+
     [Required]
     [RegularExpression("^[A-Za-z0-9]{20}$", ErrorMessage = "EHIC number must be exactly 20 alphanumeric characters.")]
     [Display(Name = "EHIC number")]
     public string EhicNumber { get; set; } = string.Empty;
+
+    [Required]
+    [FutureDate]
+    [DataType(DataType.Date)]
+    [Display(Name = "EHIC expiry date")]
+    public DateTime? EhicExpiryDate { get; set; }
 
     [Required]
     [EmailAddress]

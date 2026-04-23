@@ -1,5 +1,6 @@
 using System.Security.Claims;
-using HPTourist.Models;
+using HPTourist.Data.DTOs;
+using HPTourist.Data.Models;
 
 namespace HPTourist.Services;
 
@@ -13,9 +14,9 @@ public interface IPatientAccountService
     Task LogoutAsync();
 
     // Atomic operations — composed by the high-level methods above, exposed for reuse/testing.
-    Task<Patient?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default);
+    Task<User?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default);
 
-    ClaimsPrincipal BuildPrincipal(Patient patient);
+    ClaimsPrincipal BuildPrincipal(User user);
 
     Task SignInAsync(ClaimsPrincipal principal);
 
