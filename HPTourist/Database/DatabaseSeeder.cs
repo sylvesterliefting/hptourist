@@ -24,7 +24,6 @@ public class DatabaseSeeder
         {
             FirstName = "Test",
             LastName = "Kees",
-            Email = "test",
             DateOfBirth = DateTime.UtcNow.AddYears(-20),
             Gender = Gender.Unknown,
             Practice = practice,

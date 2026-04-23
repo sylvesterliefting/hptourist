@@ -9,6 +9,13 @@
 Are you lost in a foreign country? Are you Polish? Do you need medicine?
 You came to the right place!
 
+<AuthorizeView>
+    <Authorized>
+        @* TODO: Only show when loggin-in user is a doctor. *@
+        <PrescriptionRequests />
+    </Authorized>
+</AuthorizeView>
+
 @code {
     [SupplyParameterFromQuery]
     public string? Msg { get; set; }

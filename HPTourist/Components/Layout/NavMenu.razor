@@ -10,19 +10,7 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
             </NavLink>
         </div>
 
@@ -30,26 +18,31 @@
             <Authorized>
                 <div class="nav-item px-3">
                     <span class="nav-link">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span>
+                        <span class="bi bi-person-fill" aria-hidden="true"></span>
                         @context.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
                         @context.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
                     </span>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="logout">
-                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="prescription-requests">
+                        <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span> Prescription requests
                     </NavLink>
                 </div>
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
+                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="register">
-                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Register
+                        <span class="bi bi-person-plus-fill" aria-hidden="true"></span> Register
                     </NavLink>
                 </div>
             </NotAuthorized>

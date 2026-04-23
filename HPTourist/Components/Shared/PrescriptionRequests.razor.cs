@@ -2,19 +2,19 @@ using HPTourist.Database;
 using HPTourist.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HPTourist.Components.Pages.Dashboard;
+namespace HPTourist.Components.Shared;
 
-public partial class OpenPrescriptionRequests(DatabaseContext databaseContext)
+public partial class PrescriptionRequests(DatabaseContext databaseContext)
 {
     private readonly DatabaseContext databaseContext = databaseContext;
-    private List<PrescriptionRequest> openRequests = [];
+    private List<PrescriptionRequest> prescriptionRequests = [];
 
     protected override void OnInitialized()
     {
-        openRequests = GetOpenPrescriptionRequests();
+        prescriptionRequests = GetPrescriptionRequests();
     }
 
-    private List<PrescriptionRequest> GetOpenPrescriptionRequests()
+    private List<PrescriptionRequest> GetPrescriptionRequests()
     {
         return [.. databaseContext.PrescriptionRequests.Where(pr => pr.RequestStatus == PrescriptionRequest.Status.Pending).Include(pr => pr.Patient)];
     }

@@ -1,15 +1,15 @@
-﻿<h3>Open prescription requests</h3>
+﻿<h3>Prescription requests</h3>
 
 <div class="d-flex flex-column gap-3">
-    @if (openRequests.Count == 0)
+    @if (prescriptionRequests.Count == 0)
     {
         <div class="alert alert-secondary">
-            No open prescription requests.
+            No prescription requests.
         </div>
     }
     else
     {
-        @foreach (PrescriptionRequest prescriptionRequest in openRequests)
+        @foreach (PrescriptionRequest prescriptionRequest in prescriptionRequests)
         {
             <a class="card" href="#">
                 <div class="card-body">
@@ -19,7 +19,7 @@
                     <div>
                         <b>Date: </b> @prescriptionRequest.Date
                     </div>
-                </div>
+                </div> 
             </a>
         }
     }
