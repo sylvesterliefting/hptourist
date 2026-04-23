@@ -22,6 +22,31 @@ namespace HPTourist.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HPTourist.Data.Models.Allergy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reaction")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Substance")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Allergies");
+                });
+
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
                 {
                     b.Property<Guid>("Id")
@@ -173,6 +198,10 @@ namespace HPTourist.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BloodType")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
@@ -199,6 +228,13 @@ namespace HPTourist.Migrations
 
                     b.Property<Guid?>("PreferredLanguageId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("RhFactor")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<float?>("Weight")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
@@ -337,6 +373,14 @@ namespace HPTourist.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HPTourist.Data.Models.Allergy", b =>
+                {
+                    b.HasOne("HPTourist.Data.Models.Patient", null)
+                        .WithMany("Allergies")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Identification", "Identification")
@@ -464,6 +508,8 @@ namespace HPTourist.Migrations
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
                 {
+                    b.Navigation("Allergies");
+
                     b.Navigation("Identification");
                 });
 
