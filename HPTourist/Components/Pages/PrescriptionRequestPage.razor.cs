@@ -17,7 +17,7 @@ public partial class PrescriptionRequestPage : ComponentBase
     private string searchTerm = "";
     private List<Medicine> results = [];
     private int pageNumber = 1;
-    private int pageSize = 30;
+    private int pageSize = 20;
     private int totalResults = 0;
     private int totalPages = 0;
     private bool searched = false;
@@ -64,18 +64,39 @@ public partial class PrescriptionRequestPage : ComponentBase
 
     protected async override Task OnInitializedAsync()
     {
-        // PrescriptionRequest inclusief Patient en Medicines ophalen
-        request = await Db.PrescriptionRequests
-            .Include(r => r.Patient)
-            .Include(r => r.Medicines)
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        if (request != null)
+        // MOCK DATA ipv database
+        request = new PrescriptionRequest
         {
-            // Prescription alvast koppelen aan patient en request
-            prescription.Patient = request.Patient;
-            prescription.PrescriptionRequest = request;
-        }
+            Id = Guid.NewGuid(),
+            Date = DateTime.Now,
+            RequestStatus = PrescriptionRequest.Status.Pending,
+            Patient = new Patient
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "Jan",
+                LastName = "de Vries",
+                Email = "jan.devries@email.nl",
+                DateOfBirth = new DateTime(1985, 3, 12),
+                Gender = Gender.Male,
+                PracticeId = Guid.NewGuid(),
+                PreferredLanguageId = Guid.NewGuid(),
+            },
+            Medicines = new List<Medicine>
+            {
+                new Medicine
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Digoxine Eureco-Pharma",
+                    AtcCode = "C01AA05 - Digoxin",
+                    ActiveSubstance = "DIGOXINE",
+                    PharmaceuticalForm = "Oplossing voor injectie"
+                }
+            }
+        };
+
+        // Prescription alvast koppelen aan patient en request
+        prescription.Patient = request.Patient;
+        prescription.PrescriptionRequest = request;
 
         await LoadResults();
     }
