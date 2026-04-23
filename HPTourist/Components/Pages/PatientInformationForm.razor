@@ -1,35 +1,142 @@
 @page "/patient-information"
-@using HPTourist.Data.Models
+@rendermode InteractiveServer
+@inject IPatientAccountService AccountService
+@inject NavigationManager Navigation
 
-<h3>Patiënt Informatie</h3>
+<PageTitle>Patient information</PageTitle>
 
-<EditForm Model="@Patient" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<h3>Patient information</h3>
 
-    <div class="form-group">
-        <label for="FirstName">Voornaam</label>
-        <InputText id="FirstName" class="form-control" @bind-Value="Patient.FirstName" />
-    </div>
+@if (!string.IsNullOrEmpty(_error)) {
+    <div class="alert alert-danger" role="alert">@_error</div>
+}
 
-    <div class="form-group">
-        <label for="LastName">Achternaam</label>
-        <InputText id="LastName" class="form-control" @bind-Value="Patient.LastName" />
-    </div>
+@if (PatientInformation is not null) {
+    <EditForm method="post" Model="PatientInformation" FormName="patient-information"
+              OnValidSubmit="HandleValidSubmitAsync">
+        <DataAnnotationsValidator/>
+        <ValidationSummary class="text-danger" role="alert"/>
 
-    <div class="form-group">
-        <label for="DateOfBirth">Geboortedatum</label>
-        <InputDate id="DateOfBirth" class="form-control" @bind-Value="Patient.DateOfBirth" />
-    </div>
+        <div class="mb-3">
+            <label for="FirstName">First name</label>
+            <InputText id="FirstName" class="form-control" @bind-Value="PatientInformation.FirstName"
+                       autocomplete="given-name"/>
+            <ValidationMessage For="() => PatientInformation.FirstName" class="text-danger"/>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Opslaan</button>
-</EditForm>
+        <div class="mb-3">
+            <label for="LastName">Last name</label>
+            <InputText id="LastName" class="form-control" @bind-Value="PatientInformation.LastName"
+                       autocomplete="family-name"/>
+            <ValidationMessage For="() => PatientInformation.LastName" class="text-danger"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="DateOfBirth">Date of birth</label>
+            <InputDate id="DateOfBirth" class="form-control" @bind-Value="PatientInformation.DateOfBirth"
+                       autocomplete="bday"/>
+            <ValidationMessage For="() => PatientInformation.DateOfBirth" class="text-danger"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="Gender">Gender</label>
+            <InputSelect id="Gender" @bind-Value="PatientInformation.Gender" class="form-select">
+                <option value="">-- Select --</option>
+                @foreach (var gender in Enum.GetValues<Gender>()) {
+                    <option value="@gender">@gender</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => PatientInformation.Gender" class="text-danger"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Allergies</label>
+
+            @for (var i = 0; i < PatientInformation.Allergies.Count; i++) {
+                var index = i;
+                var allergy = PatientInformation.Allergies[index];
+
+                <div class="row g-2 mb-2 align-items-start" @key="allergy">
+                    <div class="col-md-5">
+                        <InputText class="form-control" @bind-Value="allergy.Substance" placeholder="Substance"/>
+                        <ValidationMessage For="() => PatientInformation.Allergies[index].Substance"
+                                           class="text-danger"/>
+                    </div>
+                    <div class="col-md-5">
+                        <InputText class="form-control" @bind-Value="allergy.Reaction"
+                                   placeholder="Reaction (optional)"/>
+                        <ValidationMessage For="() => PatientInformation.Allergies[index].Reaction"
+                                           class="text-danger"/>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger w-100"
+                                @onclick="() => RemoveAllergy(index)">-
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <button type="button" class="btn btn-outline-secondary" @onclick="AddAllergy">+ Add allergy</button>
+        </div>
+
+        <div class="mb-3">
+            <label for="BloodType">Blood type</label>
+            <InputSelect id="BloodType" @bind-Value="PatientInformation.BloodType" class="form-select">
+                <option value="">-- Unknown --</option>
+                @foreach (var bloodType in Enum.GetValues<BloodType>().Where(x => x != BloodType.Unknown)) {
+                    <option value="@bloodType">@bloodType</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="RhFactor">Rh factor</label>
+            <InputSelect id="RhFactor" @bind-Value="PatientInformation.RhFactor" class="form-select">
+                <option value="">-- Unknown --</option>
+                @foreach (var rhFactor in Enum.GetValues<RhFactor>().Where(x => x != RhFactor.Unknown)) {
+                    <option value="@rhFactor">@rhFactor</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label for="Weight">Weight (kg)</label>
+            <InputNumber id="Weight" class="form-control" @bind-Value="PatientInformation.Weight"/>
+            <ValidationMessage For="() => PatientInformation.Weight" class="text-danger"/>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+    </EditForm>
+}
 
 @code {
-    private Patient Patient { get; set; } = new Patient();
+    [SupplyParameterFromForm] public PatientInformationInputForm? PatientInformation { get; set; }
 
-    private void HandleValidSubmit()
-    {
-        // TODO: opslaan naar database
+    private string? _error;
+
+    protected override void OnInitialized() => PatientInformation ??= new PatientInformationInputForm();
+
+    private async Task HandleValidSubmitAsync() {
+        AccountResult result = await AccountService.AddPatientInformationAsync(PatientInformation!);
+
+        if (!result.Success) {
+            _error = result.ErrorMessage;
+            return;
+        }
+
+        Navigation.NavigateTo("/?msg=patientAdded", forceLoad: true);
     }
+
+    private void AddAllergy() => PatientInformation!.Allergies.Add(new AllergyInputForm());
+
+    private void RemoveAllergy(int index) {
+        if (PatientInformation is null || PatientInformation.Allergies.Count == 0) {
+            return;
+        }
+
+        PatientInformation.Allergies.RemoveAt(index);
+    }
+
+}
+
 }
