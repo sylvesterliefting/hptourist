@@ -1,0 +1,125 @@
+@page "/prescription-request/{id:guid}"
+@using CsvHelper
+@using CsvHelper.Configuration
+@using System.Globalization
+@using HPTourist.Data.Models
+@inject IWebHostEnvironment Env
+@inject HPTourist.Database.DatabaseContext Db
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components
+
+@rendermode InteractiveServer // Zorgt ervoor dat de pagina interactief 
+
+
+<style>
+
+    .Container {
+        display: flex;
+        justify-content: space-around;
+    }
+    .Rechterkant{
+        border-radius: 25px;
+        padding: 1%;
+        flex-grow: 1;
+        box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+        -webkit-box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+        -moz-box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+    }
+    .Linkerkant {
+        width: 40%;
+        margin-right: 1%;
+        border-radius: 25px;
+        padding: 1%;
+        box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+        -webkit-box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+        -moz-box-shadow: 12px 13px 29px -10px rgba(0,0,0,0.62);
+    }
+
+</style>
+
+<div class="Container">
+    <div class="Linkerkant">
+    <h1>Recept aanvraag</h1>
+    
+    @if (request != null)
+    {
+        <p>Status: @request.RequestStatus</p>
+        <p>Datum: @request.Date.ToShortDateString()</p>
+        <h2>Patient</h2>
+        <p>Naam: @request.Patient.FirstName @request.Patient.LastName</p>
+        <p>Email: @request.Patient.Email</p>
+        <p>Geboortedatum: @request.Patient.DateOfBirth.ToShortDateString()</p>
+        <h2>Medicijnen om aan te vragen</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Naam</th>
+                    <th>ATC</th>
+                    <th>Vorm</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in request.Medicines)
+                {
+                    <tr>
+                        <td>@m.Name</td>
+                        <td>@m.AtcCode</td>
+                        <td>@m.PharmaceuticalForm</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+    <h2>Gekozen medicijnen</h2>
+    @if (prescription.Medicines.Any())
+    {
+        @foreach (var m in prescription.Medicines)
+        {
+            <p>@m.Name <button @onclick="() => RemoveMedicine(m)">Verwijder</button></p>
+        }
+        <button @onclick="SavePrescription">Opslaan als recept</button>
+    }
+    else
+    {
+        <p>Nog geen medicijnen gekozen.</p>
+    }
+
+
+</div>
+    <div class="Rechterkant">
+        <input @bind="searchTerm" placeholder="Zoek op naam, stof of ATC..." />
+        <button @onclick="Search">Zoeken</button>
+
+        @if (results.Any())
+        {
+            <p>Resultaten: @totalResults | Pagina @pageNumber van @totalPages</p>
+
+            <table>
+                <thead>
+                    <tr><th>Naam</th><th>Werkzame stof</th><th>ATC</th><th>Vorm</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in results)
+                    {
+                        <tr @onclick="() => AddMedicine(m)" style="cursor:pointer">
+                            <td>@m.Name</td>
+                            <td>@m.ActiveSubstance</td>
+                            <td>@m.AtcCode</td>
+                            <td>@m.PharmaceuticalForm</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <button @onclick="PreviousPage" disabled="@(pageNumber == 1)">Vorige</button>
+            <button @onclick="NextPage" disabled="@(pageNumber == totalPages)">Volgende</button>
+        }
+        else if (searched)
+        {
+            <p>Geen resultaten gevonden.</p>
+        }
+
+    </div>
+</div>
