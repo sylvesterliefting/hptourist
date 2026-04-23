@@ -1,0 +1,15 @@
+@page "/logout"
+@inject IPatientAccountService AccountService
+@inject NavigationManager Navigation
+
+<PageTitle>Signing out</PageTitle>
+
+<p>Signing out...</p>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AccountService.LogoutAsync();
+        Navigation.NavigateTo("/?msg=loggedOut", forceLoad: true);
+    }
+}
