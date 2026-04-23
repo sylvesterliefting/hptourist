@@ -1,0 +1,15 @@
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<FlashMessage Message="@Msg" />
+
+<h1>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</h1>
+
+Are you lost in a foreign country? Are you Polish? Do you need medicine?
+You came to the right place!
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Msg { get; set; }
+}
