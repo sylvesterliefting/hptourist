@@ -55,3 +55,11 @@ Na het wijzigen van de database kun je een migratie maken met:
 De migraties uitvoeren kan met:
 
     dotnet ef database update
+
+## Localisatie 
+
+### Resources
+In de resource files staan alle keys en bijbehorende tekst in engels, nederlands of pools. De keys kunnen worden gebruikt in de code in plaats van de tekst. De resource files volgen dezelfde structuur als de rest van het project, de homepagina staat bijvoorbeeld HPTourist/Components/Pages/Home.razor en de resources(met de tekst die nodig is op die pagina) staan vervolgens in Resources/Components/Pages/Home.en.resx etc. Elke nieuwe component heeft dus zijn eigen groepje files nodig.
+
+### Gebruik in components
+Gebruik @inject IStringLocalizer<"*naamComponent*"> Localizer . Vervolgens gebruik je op de plek waar je vertaalbare tekst wilt hebben de localizer met de naam van de key ipv. de tekst <h1>Welcome</h1> wordt bijvoorbeeld <h1>@Localizer["Welcome"]</h1>.
