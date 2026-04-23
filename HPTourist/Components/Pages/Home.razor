@@ -4,6 +4,14 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>@Localizer["Welcome"]</h1>
+<FlashMessage Message="@Msg" />
 
-Welcome to your new app.
+<h1>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</h1>
+
+Are you lost in a foreign country? Are you Polish? Do you need medicine?
+You came to the right place!
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Msg { get; set; }
+}

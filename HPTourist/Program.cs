@@ -1,5 +1,9 @@
 using HPTourist.Components;
+using HPTourist.Data.Models;
 using HPTourist.Database;
+using HPTourist.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +30,22 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.Cookie.Name = "HPTourist.Auth";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 var app = builder.Build();
 
 app.MapControllers();
@@ -44,6 +64,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

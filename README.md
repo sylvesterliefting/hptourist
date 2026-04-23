@@ -56,6 +56,31 @@ De migraties uitvoeren kan met:
 
     dotnet ef database update
 
+## Authenticatie
+
+### Registreren (`/register`)
+
+Een toerist maakt een patiëntaccount aan met voornaam, achternaam, geboortedatum, geslacht, EHIC-nummer + vervaldatum, e-mail en wachtwoord. Validaties draaien client- en serverside via DataAnnotations:
+
+- Voor- en achternaam: verplicht, max. 100 tekens.
+- Geboortedatum: verplicht, leeftijd tussen 0 en 100 jaar (`AgeRangeAttribute`).
+- Geslacht: verplicht (keuze uit de `Gender` enum).
+- EHIC-nummer: verplicht, exact 20 alfanumerieke tekens, **uniek over alle accounts** (gecontroleerd in de service plus afgedwongen door een unique index op `EHICs.EncryptedEHICNumber`); vervaldatum moet in de toekomst liggen (`FutureDateAttribute`).
+- E-mail: verplicht, geldig e-mailadres, uniek over alle accounts.
+- Wachtwoord: min. 8 tekens; bevestiging moet matchen (`Compare`).
+
+De praktijk wordt automatisch op Huisartsenpraktijk Tourist Doctor Amsterdam gezet (geseed via `SeededIds`). Bij succes wordt direct ingelogd.
+
+### Inloggen (`/login`)
+
+Authenticatie loopt via cookies (geen JWT). De cookie heet `HPTourist.Auth`, heeft een sliding expiry van 8 uur en wordt door `PatientAccountService` geschreven met `HttpContext.SignInAsync`. Wachtwoorden worden geverifieerd met `IPasswordHasher<User>` (PBKDF2). De claims bevatten `NameIdentifier`, `Name` (e-mail), `Role`, en — afhankelijk van het accounttype — `PatientId`/`EmployeeId` plus voor- en achternaam.
+
+> **Let op:** de auth-pagina's draaien in static SSR-mode, niet in Interactive Server. De cookie moet via response headers op de POST geschreven worden, en dat kan niet via de Blazor-circuit.
+
+### Uitloggen (`/logout`)
+
+Verwijdert de cookie via `SignOutAsync` en stuurt de gebruiker terug naar de homepagina met `?msg=loggedOut`.
+
 ## Localisatie 
 
 ### Resources
