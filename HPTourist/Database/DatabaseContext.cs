@@ -55,12 +55,6 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                     .HasIndex(e => e.EncryptedEHICNumber)
                     .IsUnique();
 
-        // Identification uniqueness is based on a single DocumentNumber per country.
-        // PK name is explicitly "PK_Identifications" (correct spelling) because
-        // migration 20260421130549_Primary_Key_DefaultedTo_Guid recreated it under that
-        // name while the table kept the typo'd name "Identificatios". Without this
-        // annotation EF would assume the convention-based "PK_Identificatios" and
-        // generate bogus drop/add-PK operations in future migrations.
         modelBuilder.Entity<Identification>(entity =>
         {
             entity.HasKey(i => i.Id).HasName("PK_Identifications");
