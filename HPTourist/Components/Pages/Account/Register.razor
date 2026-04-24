@@ -1,12 +1,14 @@
 @page "/register"
 @inject IPatientAccountService AccountService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Register> Localizer
+
 
 <PageTitle>Register</PageTitle>
 
-<h1>Register</h1>
+<h1>@Localizer["Register"]</h1>
 
-<p>Create an account to request repeat prescriptions from Huisartsenpraktijk Tourist Doctor Amsterdam.</p>
+<p>@Localizer["CreateAccountMessage"]</p>
 
 @if (!string.IsNullOrEmpty(_error))
 {
@@ -20,66 +22,66 @@
         <ValidationSummary class="text-danger" role="alert" />
 
         <div class="mb-3">
-            <label for="first-name" class="form-label">First name</label>
+            <label for="first-name" class="form-label">@Localizer["FirstNameLabel"]</label>
             <InputText id="first-name" @bind-Value="PatientRegistration.FirstName" class="form-control" autocomplete="given-name" />
             <ValidationMessage For="() => PatientRegistration.FirstName" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="last-name" class="form-label">Last name</label>
+            <label for="last-name" class="form-label">@Localizer["LastNameLabel"]</label>
             <InputText id="last-name" @bind-Value="PatientRegistration.LastName" class="form-control" autocomplete="family-name" />
             <ValidationMessage For="() => PatientRegistration.LastName" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="dob" class="form-label">Date of birth</label>
+            <label for="dob" class="form-label">@Localizer["DateOfBirthLabel"]</label>
             <InputDate id="dob" @bind-Value="PatientRegistration.DateOfBirth" class="form-control" autocomplete="bday" />
             <ValidationMessage For="() => PatientRegistration.DateOfBirth" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="gender" class="form-label">Gender</label>
+            <label for="gender" class="form-label">@Localizer["GenderLabel"]</label>
             <InputSelect id="gender" @bind-Value="PatientRegistration.Gender" class="form-select">
-                <option value="">-- Select --</option>
+              <option value="">-- @Localizer["Select"] --</option>
                 @foreach (var g in Enum.GetValues<Gender>())
                 {
-                    <option value="@g">@g</option>
+                    <option value="@g">@Localizer[g.ToString()]</option>
                 }
             </InputSelect>
             <ValidationMessage For="() => PatientRegistration.Gender" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="ehic" class="form-label">EHIC number</label>
-            <InputText id="ehic" @bind-Value="PatientRegistration.EhicNumber" class="form-control" maxlength="20" placeholder="20 alphanumeric characters" />
+            <label for="ehic" class="form-label">@Localizer["EHICNumberLabel"]</label>
+            <InputText id="ehic" @bind-Value="PatientRegistration.EhicNumber" class="form-control" maxlength="20" placeholder="@((string)Localizer["EHICPlaceholder"])" />
             <ValidationMessage For="() => PatientRegistration.EhicNumber" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="ehic-expiry" class="form-label">EHIC expiry date</label>
+            <label for="ehic-expiry" class="form-label">@Localizer["EHICExpiryDateLabel"]</label>
             <InputDate id="ehic-expiry" @bind-Value="PatientRegistration.EhicExpiryDate" class="form-control" />
             <ValidationMessage For="() => PatientRegistration.EhicExpiryDate" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">@Localizer["EmailLabel"]</label>
             <InputText id="email" @bind-Value="PatientRegistration.Email" type="email" class="form-control" autocomplete="email" />
             <ValidationMessage For="() => PatientRegistration.Email" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+            <label for="password" class="form-label">@Localizer["PasswordLabel"]</label>
             <InputText id="password" @bind-Value="PatientRegistration.Password" type="password" class="form-control" autocomplete="new-password" />
             <ValidationMessage For="() => PatientRegistration.Password" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="password-confirm" class="form-label">Confirm password</label>
+            <label for="password-confirm" class="form-label">@Localizer["ConfirmPasswordLabel"]</label>
             <InputText id="password-confirm" @bind-Value="PatientRegistration.PasswordConfirm" type="password" class="form-control" autocomplete="new-password" />
             <ValidationMessage For="() => PatientRegistration.PasswordConfirm" class="text-danger" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary">@Localizer["Register"]</button>
     </EditForm>
 }
 

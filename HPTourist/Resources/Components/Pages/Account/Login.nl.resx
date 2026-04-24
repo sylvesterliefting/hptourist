@@ -117,11 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value> Are you lost in a foreign country? Are you Polish? Do you need medicine?
-You came to the right place!</value>
+  <data name="Login" xml:space="preserve">
+    <value>Inloggen</value>
   </data>
-  <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</value>
+  <data name="EmailField" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="PasswordField" xml:space="preserve">
+    <value>Wachtwoord</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>Inloggen</value>
   </data>
 </root>

@@ -117,11 +117,55 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value> Are you lost in a foreign country? Are you Polish? Do you need medicine?
-You came to the right place!</value>
+  <data name="Register" xml:space="preserve">
+    <value>Rejestr</value>
   </data>
-  <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</value>
+  <data name="CreateAccountMessage" xml:space="preserve">
+    <value>Utwórz konto, aby zamawiać recepty na powtarzające się leki w Huisartsenpraktijk Tourist Doctor Amsterdam.</value>
+  </data>
+  <data name="FirstNameLabel" xml:space="preserve">
+    <value>Imię</value>
+  </data>
+  <data name="LastNameLabel" xml:space="preserve">
+    <value>Nazwisko</value>
+  </data>
+  <data name="DateOfBirthLabel" xml:space="preserve">
+    <value>Data urodzenia</value>
+  </data>
+  <data name="GenderLabel" xml:space="preserve">
+    <value>Płeć</value>
+  </data>
+  <data name="EHICNumberLabel" xml:space="preserve">
+    <value>Numer EKUZ</value>
+  </data>
+  <data name="EHICExpiryDateLabel" xml:space="preserve">
+    <value>Data ważności EKUZ</value>
+  </data>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>Adres e-mail</value>
+  </data>
+  <data name="PasswordLabel" xml:space="preserve">
+    <value>Hasło</value>
+  </data>
+  <data name="ConfirmPasswordLabel" xml:space="preserve">
+    <value>Potwierdź hasło</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Wybierać</value>
+  </data>
+  <data name="EHICPlaceholder" xml:space="preserve">
+    <value>20 znaków alfanumerycznych</value>
+  </data>
+  <data name="Male" xml:space="preserve">
+    <value>Mężczyzna</value>
+  </data>
+  <data name="Female" xml:space="preserve">
+    <value>Kobieta</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Inne</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Nieznana</value>
   </data>
 </root>

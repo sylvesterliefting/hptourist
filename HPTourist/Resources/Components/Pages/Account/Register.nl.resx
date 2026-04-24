@@ -117,11 +117,55 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value> Are you lost in a foreign country? Are you Polish? Do you need medicine?
-You came to the right place!</value>
+  <data name="Register" xml:space="preserve">
+    <value>Registreren</value>
   </data>
-  <data name="WelcomeTitle" xml:space="preserve">
-    <value>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</value>
+  <data name="CreateAccountMessage" xml:space="preserve">
+    <value>Maak een account aan om herhalingsrecepten aan te vragen bij Huisartsenpraktijk Tourist Doctor Amsterdam.</value>
+  </data>
+  <data name="FirstNameLabel" xml:space="preserve">
+    <value>Voornaam</value>
+  </data>
+  <data name="LastNameLabel" xml:space="preserve">
+    <value>Achternaam</value>
+  </data>
+  <data name="DateOfBirthLabel" xml:space="preserve">
+    <value>Geboortedatum</value>
+  </data>
+  <data name="GenderLabel" xml:space="preserve">
+    <value>Geslacht</value>
+  </data>
+  <data name="EHICNumberLabel" xml:space="preserve">
+    <value>EHIC-nummer</value>
+  </data>
+  <data name="EHICExpiryDateLabel" xml:space="preserve">
+    <value>Vervaldatum EHIC</value>
+  </data>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>Emailadres</value>
+  </data>
+  <data name="PasswordLabel" xml:space="preserve">
+    <value>Wachtwoord</value>
+  </data>
+  <data name="ConfirmPasswordLabel" xml:space="preserve">
+    <value>Wachtwoord bevestigen</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Selecteer</value>
+  </data>
+  <data name="EHICPlaceholder" xml:space="preserve">
+    <value>20 alfanumerieke tekens</value>
+  </data>
+  <data name="Male" xml:space="preserve">
+    <value>Man</value>
+  </data>
+  <data name="Female" xml:space="preserve">
+    <value>Vrouw</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Anders</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Onbekend</value>
   </data>
 </root>

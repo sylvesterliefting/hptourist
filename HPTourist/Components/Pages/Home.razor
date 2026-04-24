@@ -6,10 +6,9 @@
 
 <FlashMessage Message="@Msg" />
 
-<h1>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</h1>
+<h1>@Localizer["WelcomeTitle"]</h1>
 
-Are you lost in a foreign country? Are you Polish? Do you need medicine?
-You came to the right place!
+@Localizer["WelcomeMessage"]
 
 @code {
     [SupplyParameterFromQuery]
