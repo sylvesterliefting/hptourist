@@ -80,3 +80,18 @@ Authenticatie loopt via cookies (geen JWT). De cookie heet `HPTourist.Auth`, hee
 ### Uitloggen (`/logout`)
 
 Verwijdert de cookie via `SignOutAsync` en stuurt de gebruiker terug naar de homepagina met `?msg=loggedOut`.
+
+## Localisatie 
+
+### Resources
+In de resource files staan alle keys en bijbehorende tekst in engels, nederlands of pools. De keys kunnen worden gebruikt in de code in plaats van de tekst. De resource files volgen dezelfde structuur als de rest van het project, de homepagina staat bijvoorbeeld HPTourist/Components/Pages/Home.razor en de resources(met de tekst die nodig is op die pagina) staan vervolgens in Resources/Components/Pages/Home.en.resx etc. Elke nieuwe component heeft dus zijn eigen groepje files nodig.
+
+### Gebruik in components
+Gebruik @inject IStringLocalizer<"*naamComponent*"> Localizer . Vervolgens gebruik je op de plek waar je vertaalbare tekst wilt hebben de localizer met de naam van de key ipv. de tekst <h1>Welcome</h1> wordt bijvoorbeeld <h1>@Localizer["Welcome"]</h1>.
+Andere voorbeelden:
+ placeholder="@((string)Localizer["EHICPlaceholder"])"
+<p>@string.Format(Localizer["Welcome"], userName)</p> value:Welcome  key:"Hello, {0}!"
+ @foreach (var g in Enum.GetValues<Gender>())
+                {
+                    <option value="@g">@Localizer[g.ToString()]</option>
+                }

@@ -14,6 +14,22 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddDbContextPool<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "en", "nl", "pl" };
+
+    options.SetDefaultCulture("en")
+           .AddSupportedCultures(supportedCultures)
+           .AddSupportedUICultures(supportedCultures);
+});
+
+builder.Services.AddControllers();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -31,6 +47,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
+
+app.MapControllers();
+
+app.UseRequestLocalization();
+
+app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

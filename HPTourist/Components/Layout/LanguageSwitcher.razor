@@ -1,0 +1,33 @@
+@using System.Globalization
+@inject NavigationManager Navigation
+
+<div class="language-switcher">
+    @foreach (var culture in SupportedCultures)
+    {
+        <a href="@GetSwitchUrl(culture.Name)" 
+           class="@(IsActive(culture.Name) ? "active" : "")">
+            @culture.NativeName
+        </a>
+    }
+</div>
+
+@code {
+    private static readonly CultureInfo[] SupportedCultures =
+    [
+        new CultureInfo("en"),
+        new CultureInfo("nl"),
+        new CultureInfo("pl"),
+    ];
+
+    private string GetSwitchUrl(string culture)
+    {
+        var currentUri = new Uri(Navigation.Uri);
+        var redirectUri = Uri.EscapeDataString(currentUri.PathAndQuery);
+        return $"/Culture/Set?culture={culture}&redirectUri={redirectUri}";
+    }
+
+    private bool IsActive(string culture)
+    {
+        return CultureInfo.CurrentCulture.Name.StartsWith(culture);
+    }
+}
