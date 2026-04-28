@@ -126,4 +126,7 @@
   <data name="Register" xml:space="preserve">
     <value>Rejestr</value>
   </data>
+  <data name="Medication" xml:space="preserve">
+    <value>Leki</value>
+  </data>
 </root>

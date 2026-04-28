@@ -1,34 +1,50 @@
 @page "/patient/medication"
+@attribute [Authorize(Roles = "Patient")]
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
-@using HPTourist.Data.Models
+@using System.Security.Claims
 @inject DatabaseContext DbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 
-<h3>Mijn Medicatie</h3>
+<PageTitle>Mijn medicatie</PageTitle>
 
-@if (currentPatient == null)
+<div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Mijn medicatie</h1>
+        <p class="text-muted mb-0">Bekijk uw voorgeschreven medicatie en beheer medicatie die u zelf heeft toegevoegd.</p>
+    </div>
+    <a href="/patient/medication/add" class="btn btn-primary">Medicatie toevoegen</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
 {
-    <p>Loading...</p>
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+@if (isLoading)
+{
+    <p>Medicatie wordt geladen...</p>
 }
 else
 {
-    <div class="medication-section">
-        <h4>Huidige Medicatie</h4>
-        
-        @if (currentPatient.Prescriptions != null && currentPatient.Prescriptions.Any())
+    <section class="mb-5">
+        <h2 class="h4">Voorgeschreven medicatie</h2>
+
+        @if (prescriptions.Any(p => p.Medicines.Any()))
         {
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Medicatie</th>
-                        <th>Werkzame Stof</th>
-                        <th>Vorm</th>
-                        <th>Voorschrijfdatum</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var prescription in currentPatient.Prescriptions)
-                    {
-                        @if (prescription.Medicines != null)
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Medicatie</th>
+                            <th>Werkzame stof</th>
+                            <th>Vorm</th>
+                            <th>Voorschrijfdatum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var prescription in prescriptions)
                         {
                             @foreach (var medicine in prescription.Medicines)
                             {
@@ -40,41 +56,43 @@ else
                                 </tr>
                             }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <p class="text-muted">U heeft geen voorgeschreven medicatie.</p>
+            <p class="text-muted">U heeft nog geen voorgeschreven medicatie.</p>
         }
-    </div>
+    </section>
 
-    <div class="medication-section mt-4">
-        <h4>Handmatig Toegevoegde Medicatie</h4>
-        
-        @if (currentPatient.PrescriptionRequests != null && currentPatient.PrescriptionRequests.Any())
+    <section>
+        <h2 class="h4">Zelf toegevoegde medicatie</h2>
+
+        @if (prescriptionRequests.Any(r => r.Medicines.Any()))
         {
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Medicatie</th>
-                        <th>Werkzame Stof</th>
-                        <th>Vorm</th>
-                        <th>Status</th>
-                        <th>Datum</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var request in currentPatient.PrescriptionRequests)
-                    {
-                        @if (request.Medicines != null)
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Medicatie</th>
+                            <th>Werkzame stof</th>
+                            <th>ATC-code</th>
+                            <th>Vorm</th>
+                            <th>Status</th>
+                            <th>Datum</th>
+                            <th class="text-end">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in prescriptionRequests)
                         {
                             @foreach (var medicine in request.Medicines)
                             {
                                 <tr>
                                     <td>@medicine.Name</td>
                                     <td>@medicine.ActiveSubstance</td>
+                                    <td>@(string.IsNullOrWhiteSpace(medicine.AtcCode) ? "-" : medicine.AtcCode)</td>
                                     <td>@medicine.PharmaceuticalForm</td>
                                     <td>
                                         <span class="badge bg-@GetStatusColor(request.RequestStatus)">
@@ -82,38 +100,128 @@ else
                                         </span>
                                     </td>
                                     <td>@request.Date.ToString("dd-MM-yyyy")</td>
+                                    <td class="text-end">
+                                        @if (request.RequestStatus == PrescriptionRequest.Status.Pending)
+                                        {
+                                            <div class="btn-group" role="group" aria-label="Medicatie acties">
+                                                <a class="btn btn-sm btn-outline-primary" href="@($"/patient/medication/edit/{medicine.Id}")">Bewerken</a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => DeleteMedicineAsync(request.Id, medicine.Id)">
+                                                    Verwijderen
+                                                </button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Niet wijzigbaar</span>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         }
-                    }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <p class="text-muted">U heeft geen handmatige medicatie toegevoegd.</p>
+            <p class="text-muted">U heeft nog geen medicatie handmatig toegevoegd.</p>
         }
-    </div>
-
-    <div class="mt-4">
-        <a href="/patient/medication/add" class="btn btn-primary">Medicatie Toevoegen</a>
-    </div>
+    </section>
 }
 
 @code {
-    private Patient? currentPatient;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<Prescription> prescriptions = [];
+    private List<PrescriptionRequest> prescriptionRequests = [];
 
     protected override async Task OnInitializedAsync()
     {
-        currentPatient = await DbContext.Patients
-            .Include(p => p.Prescriptions)
-                .ThenInclude(pr => pr.Medicines)
-            .Include(p => p.PrescriptionRequests)
-                .ThenInclude(pr => pr.Medicines)
-            .FirstOrDefaultAsync();
+        await LoadMedicationAsync();
     }
 
-    private string GetStatusColor(PrescriptionRequest.Status status)
+    private async Task LoadMedicationAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        var patientId = await GetCurrentPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        prescriptions = await DbContext.Prescriptions
+            .AsNoTracking()
+            .Where(p => p.PatientId == patientId.Value)
+            .Include(p => p.Medicines)
+            .OrderByDescending(p => p.Date)
+            .ToListAsync();
+
+        prescriptionRequests = await DbContext.PrescriptionRequests
+            .AsNoTracking()
+            .Where(r => r.PatientId == patientId.Value)
+            .Include(r => r.Medicines)
+            .OrderByDescending(r => r.Date)
+            .ToListAsync();
+
+        isLoading = false;
+    }
+
+    private async Task DeleteMedicineAsync(Guid prescriptionRequestId, Guid medicineId)
+    {
+        var patientId = await GetCurrentPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        var request = await DbContext.PrescriptionRequests
+            .Include(r => r.Medicines)
+            .SingleOrDefaultAsync(r => r.Id == prescriptionRequestId && r.PatientId == patientId.Value);
+
+        if (request is null)
+        {
+            errorMessage = "Medicatie kon niet worden gevonden.";
+            return;
+        }
+
+        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
+        {
+            errorMessage = "Alleen medicatie die nog in behandeling is kan worden verwijderd.";
+            return;
+        }
+
+        var medicine = request.Medicines.SingleOrDefault(m => m.Id == medicineId);
+        if (medicine is null)
+        {
+            errorMessage = "Medicatie kon niet worden gevonden.";
+            return;
+        }
+
+        DbContext.Medicines.Remove(medicine);
+        if (request.Medicines.Count == 1)
+        {
+            DbContext.PrescriptionRequests.Remove(request);
+        }
+
+        await DbContext.SaveChangesAsync();
+        await LoadMedicationAsync();
+    }
+
+    private async Task<Guid?> GetCurrentPatientIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var patientIdValue = authState.User.FindFirstValue("PatientId");
+
+        return Guid.TryParse(patientIdValue, out var patientId)
+            ? patientId
+            : null;
+    }
+
+    private static string GetStatusColor(PrescriptionRequest.Status status)
     {
         return status switch
         {
@@ -124,7 +232,7 @@ else
         };
     }
 
-    private string GetStatusText(PrescriptionRequest.Status status)
+    private static string GetStatusText(PrescriptionRequest.Status status)
     {
         return status switch
         {

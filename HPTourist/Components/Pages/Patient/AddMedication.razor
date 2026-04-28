@@ -1,82 +1,128 @@
 @page "/patient/medication/add"
+@attribute [Authorize(Roles = "Patient")]
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
-@using HPTourist.Data.Models
+@using System.Security.Claims
 @inject DatabaseContext DbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 
-<h3>Medicatie Toevoegen</h3>
+<PageTitle>Medicatie toevoegen</PageTitle>
 
-<p class="text-muted">Voeg hier uw medicatie toe die u al gebruikt.</p>
+<h1>Medicatie toevoegen</h1>
+<p class="text-muted">Voeg medicatie toe die u al gebruikt of waarvoor u een herhaalrecept wilt aanvragen.</p>
 
-<EditForm Model="@medicine" OnValidSubmit="@HandleValidSubmit">
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+<EditForm Model="medicineForm" OnValidSubmit="HandleValidSubmitAsync">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+    <ValidationSummary class="text-danger" />
 
     <div class="mb-3">
         <label for="name" class="form-label">Medicatienaam</label>
-        <InputText id="name" class="form-control" @bind-Value="medicine.Name" />
+        <InputText id="name" class="form-control" @bind-Value="medicineForm.Name" />
+        <ValidationMessage For="() => medicineForm.Name" class="text-danger" />
     </div>
 
     <div class="mb-3">
-        <label for="activeSubstance" class="form-label">Werkzame Stof</label>
-        <InputText id="activeSubstance" class="form-control" @bind-Value="medicine.ActiveSubstance" />
+        <label for="activeSubstance" class="form-label">Werkzame stof</label>
+        <InputText id="activeSubstance" class="form-control" @bind-Value="medicineForm.ActiveSubstance" />
+        <ValidationMessage For="() => medicineForm.ActiveSubstance" class="text-danger" />
     </div>
 
     <div class="mb-3">
-        <label for="atcCode" class="form-label">ATC Code (optioneel)</label>
-        <InputText id="atcCode" class="form-control" @bind-Value="medicine.AtcCode" />
+        <label for="atcCode" class="form-label">ATC-code (optioneel)</label>
+        <InputText id="atcCode" class="form-control" @bind-Value="medicineForm.AtcCode" />
+        <ValidationMessage For="() => medicineForm.AtcCode" class="text-danger" />
     </div>
 
     <div class="mb-3">
-        <label for="pharmaceuticalForm" class="form-label">Farmaceutische Vorm</label>
-        <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicine.PharmaceuticalForm">
+        <label for="pharmaceuticalForm" class="form-label">Farmaceutische vorm</label>
+        <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicineForm.PharmaceuticalForm">
             <option value="">Selecteer vorm...</option>
-            <option value="Tablet">Tablet</option>
-            <option value="Capsule">Capsule</option>
-            <option value="Injectie">Injectie</option>
-            <option value="Inhalator">Inhalator</option>
-            <option value="Zalf">Zalf</option>
-            <option value="Drank">Drank</option>
-            <option value="Druppels">Druppels</option>
-            <option value="Pleister">Pleister</option>
-            <option value="Zetpil">Zetpil</option>
-            <option value="Overige">Overige</option>
+            @foreach (var form in PharmaceuticalForms)
+            {
+                <option value="@form">@form</option>
+            }
         </InputSelect>
+        <ValidationMessage For="() => medicineForm.PharmaceuticalForm" class="text-danger" />
     </div>
 
-    <div class="mb-3">
+    <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">Opslaan</button>
-        <a href="/patient/medication" class="btn btn-secondary ms-2">Annuleren</a>
+        <a href="/patient/medication" class="btn btn-secondary">Annuleren</a>
     </div>
 </EditForm>
 
 @code {
-    private Medicine medicine = new Medicine();
-    private Patient? currentPatient;
+    private static readonly string[] PharmaceuticalForms =
+    [
+        "Tablet",
+        "Capsule",
+        "Injectie",
+        "Inhalator",
+        "Zalf",
+        "Drank",
+        "Druppels",
+        "Pleister",
+        "Zetpil",
+        "Overige"
+    ];
 
-    protected override async Task OnInitializedAsync()
+    private MedicineForm medicineForm = new();
+    private string? errorMessage;
+
+    private async Task HandleValidSubmitAsync()
     {
-        currentPatient = await DbContext.Patients.FirstOrDefaultAsync();
-    }
+        var patientId = await GetCurrentPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
 
-    private async Task HandleValidSubmit()
-    {
-        if (currentPatient == null) return;
-
-        medicine.Id = Guid.NewGuid();
+        var patientExists = await DbContext.Patients.AnyAsync(p => p.Id == patientId.Value);
+        if (!patientExists)
+        {
+            errorMessage = "Patiënt kon niet worden gevonden.";
+            return;
+        }
 
         var prescriptionRequest = new PrescriptionRequest
         {
             Id = Guid.NewGuid(),
-            Patient = currentPatient,
-            Medicines = new List<Medicine> { medicine },
+            PatientId = patientId.Value,
+            Medicines =
+            [
+                new Medicine
+                {
+                    Id = Guid.NewGuid(),
+                    Name = medicineForm.Name.Trim(),
+                    ActiveSubstance = medicineForm.ActiveSubstance.Trim(),
+                    AtcCode = medicineForm.AtcCode?.Trim() ?? string.Empty,
+                    PharmaceuticalForm = medicineForm.PharmaceuticalForm.Trim(),
+                }
+            ],
             RequestStatus = PrescriptionRequest.Status.Pending,
-            Date = DateTime.Now
+            Date = DateTime.UtcNow
         };
 
         DbContext.PrescriptionRequests.Add(prescriptionRequest);
         await DbContext.SaveChangesAsync();
 
         Navigation.NavigateTo("/patient/medication");
+    }
+
+    private async Task<Guid?> GetCurrentPatientIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var patientIdValue = authState.User.FindFirstValue("PatientId");
+
+        return Guid.TryParse(patientIdValue, out var patientId)
+            ? patientId
+            : null;
     }
 }

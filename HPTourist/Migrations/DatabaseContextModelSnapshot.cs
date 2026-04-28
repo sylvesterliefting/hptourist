@@ -17,7 +17,7 @@ namespace HPTourist.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.6")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -164,7 +164,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicine");
+                    b.ToTable("Medicines");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
@@ -411,7 +411,7 @@ namespace HPTourist.Migrations
                         .IsRequired();
 
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Prescriptions")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -432,7 +432,7 @@ namespace HPTourist.Migrations
             modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("PrescriptionRequests")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -465,6 +465,10 @@ namespace HPTourist.Migrations
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
                 {
                     b.Navigation("Identification");
+
+                    b.Navigation("PrescriptionRequests");
+
+                    b.Navigation("Prescriptions");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>
