@@ -3,6 +3,7 @@ using System;
 using HPTourist.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HPTourist.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260422141522_RetentionPolicy_init")]
+    partial class RetentionPolicy_init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,13 +38,10 @@ namespace HPTourist.Migrations
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("IdentificationId")
+                    b.Property<Guid>("IdentificationId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EncryptedEHICNumber")
-                        .IsUnique();
 
                     b.HasIndex("IdentificationId")
                         .IsUnique();
@@ -103,8 +103,7 @@ namespace HPTourist.Migrations
                     b.Property<DateTime?>("ValidTo")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id")
-                        .HasName("PK_Identifications");
+                    b.HasKey("Id");
 
                     b.HasIndex("PatientId")
                         .IsUnique();
@@ -179,23 +178,25 @@ namespace HPTourist.Migrations
                     b.Property<Guid?>("EHICId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Gender")
                         .HasColumnType("integer");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("PracticeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PreferredLanguageId")
+                    b.Property<Guid>("PreferredLanguageId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -226,14 +227,6 @@ namespace HPTourist.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Practices");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a1b2c3d4-1111-4111-8111-000000000001"),
-                            Address = "Damrak 1, 1012 LG Amsterdam",
-                            Name = "Huisartsenpraktijk Tourist Doctor Amsterdam"
-                        });
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Prescription", b =>
@@ -287,57 +280,13 @@ namespace HPTourist.Migrations
                     b.ToTable("PrescriptionRequests");
                 });
 
-            modelBuilder.Entity("HPTourist.Data.Models.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(254)
-                        .HasColumnType("character varying(254)");
-
-                    b.Property<Guid?>("EmployeeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("EmployeeId")
-                        .IsUnique();
-
-                    b.HasIndex("PatientId")
-                        .IsUnique();
-
-                    b.ToTable("Users", t =>
-                        {
-                            t.HasCheckConstraint("CK_Users_OneOfPatientOrEmployee", "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)");
-                        });
-                });
-
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Identification", "Identification")
                         .WithOne("EHIC")
-                        .HasForeignKey("HPTourist.Data.Models.EHIC", "IdentificationId");
+                        .HasForeignKey("HPTourist.Data.Models.EHIC", "IdentificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Identification");
                 });
@@ -389,7 +338,9 @@ namespace HPTourist.Migrations
 
                     b.HasOne("HPTourist.Data.Models.Language", "PreferredLanguage")
                         .WithMany()
-                        .HasForeignKey("PreferredLanguageId");
+                        .HasForeignKey("PreferredLanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("EHIC");
 
@@ -432,23 +383,6 @@ namespace HPTourist.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("HPTourist.Data.Models.User", b =>
-                {
-                    b.HasOne("HPTourist.Data.Models.Employee", "Employee")
-                        .WithOne()
-                        .HasForeignKey("HPTourist.Data.Models.User", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithOne()
-                        .HasForeignKey("HPTourist.Data.Models.User", "PatientId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Employee");
 
                     b.Navigation("Patient");
                 });
