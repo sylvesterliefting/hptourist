@@ -1,3 +1,5 @@
+﻿@inject IStringLocalizer<NavMenu> Localizer
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">HPTourist</a>
@@ -10,7 +12,7 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> @Localizer["Home"]
             </NavLink>
         </div>
 
@@ -44,12 +46,12 @@
             <NotAuthorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span> Login
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span>@Localizer["Login"]
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="register">
-                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Register
+                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span>@Localizer["Register"]
                     </NavLink>
                 </div>
             </NotAuthorized>
