@@ -1,10 +1,12 @@
 @page "/logout"
 @inject IPatientAccountService AccountService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Logout> Localizer
 
-<PageTitle>Signing out</PageTitle>
 
-<p>Signing out...</p>
+<PageTitle>Logout</PageTitle>
+
+<p>@Localizer["SignOutMessage"]</p>
 
 @code {
     protected override async Task OnInitializedAsync()

@@ -1,10 +1,12 @@
 @page "/login"
 @inject IPatientAccountService AccountService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<Login> Localizer
+
 
 <PageTitle>Login</PageTitle>
 
-<h1>Login</h1>
+<h1>@Localizer["Login"]</h1>
 
 @if (!string.IsNullOrEmpty(_error))
 {
@@ -18,18 +20,18 @@
         <ValidationSummary class="text-danger" role="alert" />
 
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">@Localizer["EmailField"]</label>
             <InputText id="email" @bind-Value="PatientLogin.Email" type="email" class="form-control" autocomplete="email" />
             <ValidationMessage For="() => PatientLogin.Email" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+            <label for="password" class="form-label">@Localizer["PasswordField"]</label>
             <InputText id="password" @bind-Value="PatientLogin.Password" type="password" class="form-control" autocomplete="current-password" />
             <ValidationMessage For="() => PatientLogin.Password" class="text-danger" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Log in</button>
+        <button type="submit" class="btn btn-primary">@Localizer["LoginButton"]</button>
     </EditForm>
 }
 
