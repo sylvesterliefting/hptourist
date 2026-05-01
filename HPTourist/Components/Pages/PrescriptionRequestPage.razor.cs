@@ -21,11 +21,13 @@ public partial class PrescriptionRequestPage : ComponentBase
     private int totalResults = 0;
     private int totalPages = 0;
     private bool searched = false;
+    private bool saved = false;
+    private string? errorMessage;
 
     public Prescription prescription = new()
     {
         Id = Guid.NewGuid(),
-        Date = DateTime.Now,
+        Date = DateTime.UtcNow,
         Medicines = []
     };
 
@@ -64,55 +66,68 @@ public partial class PrescriptionRequestPage : ComponentBase
 
     protected async override Task OnInitializedAsync()
     {
-        // MOCK DATA ipv database
-        request = new PrescriptionRequest
-        {
-            Id = Guid.NewGuid(),
-            Date = DateTime.Now,
-            RequestStatus = PrescriptionRequest.Status.Pending,
-            Patient = new Patient
-            {
-                Id = Guid.NewGuid(),
-                FirstName = "Jan",
-                LastName = "de Vries",
-                Email = "jan.devries@email.nl",
-                DateOfBirth = new DateTime(1985, 3, 12),
-                Gender = Gender.Male,
-                PracticeId = Guid.NewGuid(),
-                PreferredLanguageId = Guid.NewGuid(),
-            },
-            Medicines = new List<Medicine>
-            {
-                new Medicine
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Digoxine Eureco-Pharma",
-                    AtcCode = "C01AA05 - Digoxin",
-                    ActiveSubstance = "DIGOXINE",
-                    PharmaceuticalForm = "Oplossing voor injectie"
-                }
-            }
-        };
+        // PrescriptionRequest uit de database ophalen
+        request = await Db.PrescriptionRequests
+            .Include(r => r.Patient)
+            .Include(r => r.Medicines)
+            .FirstOrDefaultAsync(r => r.Id == id);
 
-        // Prescription alvast koppelen aan patient en request
-        prescription.Patient = request.Patient;
-        prescription.PrescriptionRequest = request;
+        if (request != null)
+        {
+            prescription.Patient = request.Patient;
+            prescription.PrescriptionRequest = request;
+        }
 
         await LoadResults();
     }
+
+
 
     async Task SavePrescription()
     {
         if (request == null || !prescription.Medicines.Any())
             return;
 
-        prescription.Date = DateTime.Now;
-        prescription.Patient = request.Patient;
-        prescription.PrescriptionRequest = request;
-        // TODO: Koppel Employee indien nodig
+        try
+        {
+            var employee = await Db.Employees.FirstOrDefaultAsync();
+            if (employee == null)
+            {
+                errorMessage = "Geen employee gevonden in de database.";
+                return;
+            }
 
-        Db.Prescriptions.Add(prescription);
-        await Db.SaveChangesAsync();
+            foreach (var medicine in prescription.Medicines)
+            {
+                var exists = await Db.Set<Medicine>().AnyAsync(m => m.Id == medicine.Id);
+                if (!exists)
+                    Db.Set<Medicine>().Add(medicine);
+                else
+                    Db.Entry(medicine).State = EntityState.Unchanged;
+            }
+
+            var newPrescription = new Prescription
+            {
+                Id = Guid.NewGuid(),
+                Date = DateTime.UtcNow,
+                Patient = request.Patient,
+                PrescriptionRequest = request,
+                Employee = employee,
+                Medicines = prescription.Medicines
+            };
+
+            Db.Prescriptions.Add(newPrescription);
+            await Db.SaveChangesAsync();
+
+            request.RequestStatus = PrescriptionRequest.Status.Processed;
+            await Db.SaveChangesAsync();
+
+            saved = true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
     }
 
     async Task LoadResults()

@@ -47,6 +47,18 @@ public class DatabaseSeeder
             Date = DateTime.UtcNow
         };
 
+        var employee = new Employee()
+        {
+            Name = "Test Dokter",
+            Role = Role.GeneralPractitioner,
+            Practice = practice
+        };
+
+        if (!databaseContext.Employees.Any())
+        {
+            databaseContext.Employees.Add(employee);
+        }
+
         if (!databaseContext.Languages.Any())
         {
             databaseContext.Languages.Add(language);

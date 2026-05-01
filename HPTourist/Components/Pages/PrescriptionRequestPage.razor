@@ -8,12 +8,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components
 
-@rendermode InteractiveServer // Zorgt ervoor dat de pagina interactief 
-
-
-<style>
-   
-</style>
+@rendermode InteractiveServer
 
 <div class="Container">
     <div class="Linkerkant">
@@ -72,6 +67,15 @@
         else
         {
             <p>Nog geen medicijnen gekozen.</p>
+        }
+
+        @if (saved)
+        {
+            <div class="alert-success">Recept succesvol opgeslagen.</div>
+        }
+        @if (errorMessage != null)
+        {
+            <div class="alert-error">@errorMessage</div>
         }
     </div>
 

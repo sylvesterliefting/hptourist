@@ -13,6 +13,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
    public DbSet<Language> Languages => Set<Language>();
    public DbSet<Identification> Identificatios => Set<Identification>();
    public DbSet<EHIC> EHICs => Set<EHIC>();
+   public DbSet<Medicine> Medicines => Set<Medicine>();
 
    protected override void OnModelCreating(ModelBuilder modelBuilder)
    {

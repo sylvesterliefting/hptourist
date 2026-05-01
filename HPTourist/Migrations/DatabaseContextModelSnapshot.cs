@@ -160,7 +160,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicine");
+                    b.ToTable("Medicines");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
