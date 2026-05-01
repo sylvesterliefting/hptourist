@@ -13,7 +13,8 @@ export class RegisterPage {
   readonly passwordInput: Locator;
   readonly passwordConfirmInput: Locator;
   readonly submitButton: Locator;
- 
+  readonly validationSummary: Locator;
+
  
   constructor(page: Page) {
     this.page = page;
@@ -28,6 +29,7 @@ export class RegisterPage {
     this.passwordInput      = page.locator('#password');
     this.passwordConfirmInput = page.locator('#password-confirm');
     this.submitButton       = page.getByRole('button', { name: /register/i });
+    this.validationSummary  =page.getByRole("alert")
  
   }
  
