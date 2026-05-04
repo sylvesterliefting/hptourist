@@ -29,12 +29,22 @@
         </div>
 
         <AuthorizeView>
-            <Authorized>
+            <Authorized Context="userContext">
+                <AuthorizeView Roles="Patient">
+                    <Authorized Context="patientContext">
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="patient/medication">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @Localizer["Medication"]
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+
                 <div class="nav-item px-3">
                     <span class="nav-link">
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span>
-                        @context.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
-                        @context.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
+                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
+                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
                     </span>
                 </div>
                 <div class="nav-item px-3">

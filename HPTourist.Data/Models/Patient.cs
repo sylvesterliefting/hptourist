@@ -21,4 +21,8 @@ public class Patient
     public Identification? Identification { get; set; }
 
     public EHIC? EHIC { get; set; }
+
+    public List<Prescription> Prescriptions { get; set; } = [];
+
+    public List<PrescriptionRequest> PrescriptionRequests { get; set; } = [];
 }
