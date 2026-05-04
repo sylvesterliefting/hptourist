@@ -1,9 +1,10 @@
 @page "/patient/medication/edit/{MedicineId:guid}"
 @attribute [Authorize(Roles = "Patient")]
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
 @using System.Security.Claims
-@inject DatabaseContext DbContext
+@using HPTourist.Data.DTOs.Medication
+@using HPTourist.Services.Medication
+@inject IMedicationService MedicationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 
@@ -48,7 +49,7 @@ else
             <label for="pharmaceuticalForm" class="form-label">Farmaceutische vorm</label>
             <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicineForm.PharmaceuticalForm">
                 <option value="">Selecteer vorm...</option>
-                @foreach (var form in PharmaceuticalForms)
+                @foreach (var form in PharmaceuticalForms.All)
                 {
                     <option value="@form">@form</option>
                 }
@@ -67,22 +68,7 @@ else
     [Parameter]
     public Guid MedicineId { get; set; }
 
-    private static readonly string[] PharmaceuticalForms =
-    [
-        "Tablet",
-        "Capsule",
-        "Injectie",
-        "Inhalator",
-        "Zalf",
-        "Drank",
-        "Druppels",
-        "Pleister",
-        "Zetpil",
-        "Overige"
-    ];
-
     private MedicineForm medicineForm = new();
-    private Guid? prescriptionRequestId;
     private bool isLoading = true;
     private string? errorMessage;
 
@@ -95,11 +81,7 @@ else
             return;
         }
 
-        var request = await DbContext.PrescriptionRequests
-            .AsNoTracking()
-            .Include(r => r.Medicines)
-            .Where(r => r.PatientId == patientId.Value)
-            .SingleOrDefaultAsync(r => r.Medicines.Any(m => m.Id == MedicineId));
+        var request = await MedicationService.GetPrescriptionRequestByMedicineIdAsync(patientId.Value, MedicineId);
 
         if (request is null)
         {
@@ -108,15 +90,21 @@ else
             return;
         }
 
-        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
+        if (request.Status != PrescriptionRequest.Status.Pending)
         {
             errorMessage = "Alleen medicatie die nog in behandeling is kan worden aangepast.";
             isLoading = false;
             return;
         }
 
+        if (request.Medicines.Count != 1)
+        {
+            errorMessage = "Deze aanvraag kan niet worden bewerkt omdat deze meerdere medicijnen bevat.";
+            isLoading = false;
+            return;
+        }
+
         var medicine = request.Medicines.Single(m => m.Id == MedicineId);
-        prescriptionRequestId = request.Id;
         medicineForm = new MedicineForm
         {
             Name = medicine.Name,
@@ -136,31 +124,15 @@ else
             return;
         }
 
-        var request = await DbContext.PrescriptionRequests
-            .Include(r => r.Medicines)
-            .Where(r => r.PatientId == patientId.Value)
-            .SingleOrDefaultAsync(r => r.Id == prescriptionRequestId && r.Medicines.Any(m => m.Id == MedicineId));
-
-        if (request is null)
+        try
         {
-            errorMessage = "Medicatie kon niet worden gevonden.";
-            return;
+            await MedicationService.UpdateMedicineAsync(patientId.Value, MedicineId, medicineForm);
+            Navigation.NavigateTo("/patient/medication");
         }
-
-        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
+        catch (MedicationException ex)
         {
-            errorMessage = "Alleen medicatie die nog in behandeling is kan worden aangepast.";
-            return;
+            errorMessage = ex.Message;
         }
-
-        var medicine = request.Medicines.Single(m => m.Id == MedicineId);
-        medicine.Name = medicineForm.Name.Trim();
-        medicine.ActiveSubstance = medicineForm.ActiveSubstance.Trim();
-        medicine.AtcCode = medicineForm.AtcCode?.Trim() ?? string.Empty;
-        medicine.PharmaceuticalForm = medicineForm.PharmaceuticalForm.Trim();
-
-        await DbContext.SaveChangesAsync();
-        Navigation.NavigateTo("/patient/medication");
     }
 
     private async Task<Guid?> GetCurrentPatientIdAsync()

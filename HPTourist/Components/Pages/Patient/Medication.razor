@@ -1,9 +1,10 @@
 @page "/patient/medication"
 @attribute [Authorize(Roles = "Patient")]
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
 @using System.Security.Claims
-@inject DatabaseContext DbContext
+@using HPTourist.Data.DTOs.Medication
+@using HPTourist.Services.Medication
+@inject IMedicationService MedicationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 
@@ -95,13 +96,13 @@ else
                                     <td>@(string.IsNullOrWhiteSpace(medicine.AtcCode) ? "-" : medicine.AtcCode)</td>
                                     <td>@medicine.PharmaceuticalForm</td>
                                     <td>
-                                        <span class="badge bg-@GetStatusColor(request.RequestStatus)">
-                                            @GetStatusText(request.RequestStatus)
+                                        <span class="badge bg-@GetStatusColor(request.Status)">
+                                            @GetStatusText(request.Status)
                                         </span>
                                     </td>
                                     <td>@request.Date.ToString("dd-MM-yyyy")</td>
                                     <td class="text-end">
-                                        @if (request.RequestStatus == PrescriptionRequest.Status.Pending)
+                                        @if (request.Status == PrescriptionRequest.Status.Pending)
                                         {
                                             <div class="btn-group" role="group" aria-label="Medicatie acties">
                                                 <a class="btn btn-sm btn-outline-primary" href="@($"/patient/medication/edit/{medicine.Id}")">Bewerken</a>
@@ -132,8 +133,8 @@ else
 @code {
     private bool isLoading = true;
     private string? errorMessage;
-    private List<Prescription> prescriptions = [];
-    private List<PrescriptionRequest> prescriptionRequests = [];
+    private List<PrescriptionDto> prescriptions = [];
+    private List<PrescriptionRequestDto> prescriptionRequests = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -152,19 +153,8 @@ else
             return;
         }
 
-        prescriptions = await DbContext.Prescriptions
-            .AsNoTracking()
-            .Where(p => p.PatientId == patientId.Value)
-            .Include(p => p.Medicines)
-            .OrderByDescending(p => p.Date)
-            .ToListAsync();
-
-        prescriptionRequests = await DbContext.PrescriptionRequests
-            .AsNoTracking()
-            .Where(r => r.PatientId == patientId.Value)
-            .Include(r => r.Medicines)
-            .OrderByDescending(r => r.Date)
-            .ToListAsync();
+        prescriptions = await MedicationService.GetPrescriptionsAsync(patientId.Value);
+        prescriptionRequests = await MedicationService.GetPrescriptionRequestsAsync(patientId.Value);
 
         isLoading = false;
     }
@@ -178,37 +168,15 @@ else
             return;
         }
 
-        var request = await DbContext.PrescriptionRequests
-            .Include(r => r.Medicines)
-            .SingleOrDefaultAsync(r => r.Id == prescriptionRequestId && r.PatientId == patientId.Value);
-
-        if (request is null)
+        try
         {
-            errorMessage = "Medicatie kon niet worden gevonden.";
-            return;
+            await MedicationService.DeleteMedicineAsync(patientId.Value, prescriptionRequestId, medicineId);
+            await LoadMedicationAsync();
         }
-
-        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
+        catch (MedicationException ex)
         {
-            errorMessage = "Alleen medicatie die nog in behandeling is kan worden verwijderd.";
-            return;
+            errorMessage = ex.Message;
         }
-
-        var medicine = request.Medicines.SingleOrDefault(m => m.Id == medicineId);
-        if (medicine is null)
-        {
-            errorMessage = "Medicatie kon niet worden gevonden.";
-            return;
-        }
-
-        DbContext.Medicines.Remove(medicine);
-        if (request.Medicines.Count == 1)
-        {
-            DbContext.PrescriptionRequests.Remove(request);
-        }
-
-        await DbContext.SaveChangesAsync();
-        await LoadMedicationAsync();
     }
 
     private async Task<Guid?> GetCurrentPatientIdAsync()

@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using HPTourist.Data.DTOs;
 using HPTourist.Data.Models;
 using HPTourist.Database;
@@ -6,45 +5,57 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HPTourist.Services;
 
-public sealed class PatientAccountService(
-    DatabaseContext db,
-    IPasswordHasher<User> hasher,
-    IHttpContextAccessor httpContextAccessor) : IPatientAccountService
+public class PatientAccountService : IPatientAccountService
 {
+    private readonly DatabaseContext _db;
+    private readonly IPasswordHasher<User> _hasher;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public PatientAccountService(
+        DatabaseContext db,
+        IPasswordHasher<User> hasher,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        _db = db;
+        _hasher = hasher;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
     public async Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
     {
         var email = form.Email.Trim().ToLowerInvariant();
         var ehic = form.EhicNumber.Trim().ToUpperInvariant();
 
-        if (await db.Users.AnyAsync(u => u.Email == email, ct))
+        if (await _db.Users.AnyAsync(u => u.Email == email, ct))
         {
             return AccountResult.Fail("An account with this email already exists.");
         }
 
-        if (await db.EHICs.AnyAsync(e => e.EncryptedEHICNumber == ehic, ct))
+        if (await _db.EHICs.AnyAsync(e => e.EncryptedEHICNumber == ehic, ct))
         {
             return AccountResult.Fail("An account with this EHIC number already exists.");
         }
 
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
         var patient = new Patient
         {
             FirstName = form.FirstName.Trim(),
             LastName = form.LastName.Trim(),
-            DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
+            DateOfBirth = System.DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), System.DateTimeKind.Utc),
             Gender = form.Gender!.Value,
             PracticeId = SeededIds.TouristDoctorAmsterdamPractice,
             EHIC = new EHIC
             {
                 EncryptedEHICNumber = ehic,
-                ExpiryDate = DateTime.SpecifyKind(form.EhicExpiryDate!.Value, DateTimeKind.Utc),
+                ExpiryDate = System.DateTime.SpecifyKind(form.EhicExpiryDate!.Value, System.DateTimeKind.Utc),
             },
         };
-        db.Patients.Add(patient);
+        _db.Patients.Add(patient);
 
         var user = new User
         {
@@ -53,12 +64,12 @@ public sealed class PatientAccountService(
             PatientId = patient.Id,
             PasswordHash = string.Empty,
         };
-        user.PasswordHash = hasher.HashPassword(user, form.Password);
-        db.Users.Add(user);
+        user.PasswordHash = _hasher.HashPassword(user, form.Password);
+        _db.Users.Add(user);
 
         try
         {
-            await db.SaveChangesAsync(ct);
+            await _db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
         }
         catch (DbUpdateException)
@@ -90,7 +101,7 @@ public sealed class PatientAccountService(
     public async Task<User?> ValidateCredentialsAsync(PatientLoginForm form, CancellationToken ct = default)
     {
         var email = form.Email.Trim().ToLowerInvariant();
-        var user = await db.Users
+        var user = await _db.Users
             .Include(u => u.Patient)
             .Include(u => u.Employee)
             .SingleOrDefaultAsync(u => u.Email == email, ct);
@@ -99,7 +110,7 @@ public sealed class PatientAccountService(
             return null;
         }
 
-        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, form.Password);
+        var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, form.Password);
         if (result == PasswordVerificationResult.Failed)
         {
             return null;
@@ -107,8 +118,8 @@ public sealed class PatientAccountService(
 
         if (result == PasswordVerificationResult.SuccessRehashNeeded)
         {
-            user.PasswordHash = hasher.HashPassword(user, form.Password);
-            await db.SaveChangesAsync(ct);
+            user.PasswordHash = _hasher.HashPassword(user, form.Password);
+            await _db.SaveChangesAsync(ct);
         }
 
         return user;
@@ -146,6 +157,6 @@ public sealed class PatientAccountService(
         RequireHttpContext().SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
     private HttpContext RequireHttpContext() =>
-        httpContextAccessor.HttpContext
+        _httpContextAccessor.HttpContext
             ?? throw new InvalidOperationException("No active HttpContext — sign-in/out must happen during an HTTP request.");
 }

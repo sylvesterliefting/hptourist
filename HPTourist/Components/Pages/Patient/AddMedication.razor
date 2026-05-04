@@ -1,9 +1,10 @@
 @page "/patient/medication/add"
 @attribute [Authorize(Roles = "Patient")]
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
 @using System.Security.Claims
-@inject DatabaseContext DbContext
+@using HPTourist.Data.DTOs.Medication
+@using HPTourist.Services.Medication
+@inject IMedicationService MedicationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 
@@ -43,7 +44,7 @@
         <label for="pharmaceuticalForm" class="form-label">Farmaceutische vorm</label>
         <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicineForm.PharmaceuticalForm">
             <option value="">Selecteer vorm...</option>
-            @foreach (var form in PharmaceuticalForms)
+            @foreach (var form in PharmaceuticalForms.All)
             {
                 <option value="@form">@form</option>
             }
@@ -58,20 +59,6 @@
 </EditForm>
 
 @code {
-    private static readonly string[] PharmaceuticalForms =
-    [
-        "Tablet",
-        "Capsule",
-        "Injectie",
-        "Inhalator",
-        "Zalf",
-        "Drank",
-        "Druppels",
-        "Pleister",
-        "Zetpil",
-        "Overige"
-    ];
-
     private MedicineForm medicineForm = new();
     private string? errorMessage;
 
@@ -84,36 +71,15 @@
             return;
         }
 
-        var patientExists = await DbContext.Patients.AnyAsync(p => p.Id == patientId.Value);
-        if (!patientExists)
+        try
         {
-            errorMessage = "Patiënt kon niet worden gevonden.";
-            return;
+            await MedicationService.AddPrescriptionRequestAsync(patientId.Value, medicineForm);
+            Navigation.NavigateTo("/patient/medication");
         }
-
-        var prescriptionRequest = new PrescriptionRequest
+        catch (MedicationException ex)
         {
-            Id = Guid.NewGuid(),
-            PatientId = patientId.Value,
-            Medicines =
-            [
-                new Medicine
-                {
-                    Id = Guid.NewGuid(),
-                    Name = medicineForm.Name.Trim(),
-                    ActiveSubstance = medicineForm.ActiveSubstance.Trim(),
-                    AtcCode = medicineForm.AtcCode?.Trim() ?? string.Empty,
-                    PharmaceuticalForm = medicineForm.PharmaceuticalForm.Trim(),
-                }
-            ],
-            RequestStatus = PrescriptionRequest.Status.Pending,
-            Date = DateTime.UtcNow
-        };
-
-        DbContext.PrescriptionRequests.Add(prescriptionRequest);
-        await DbContext.SaveChangesAsync();
-
-        Navigation.NavigateTo("/patient/medication");
+            errorMessage = ex.Message;
+        }
     }
 
     private async Task<Guid?> GetCurrentPatientIdAsync()

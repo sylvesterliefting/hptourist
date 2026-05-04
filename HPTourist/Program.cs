@@ -2,6 +2,8 @@ using HPTourist.Components;
 using HPTourist.Data.Models;
 using HPTourist.Database;
 using HPTourist.Services;
+using HPTourist.Services.DateTime;
+using HPTourist.Services.Medication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +34,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
+builder.Services.AddScoped<IMedicationMapper, MedicationMapper>();
+builder.Services.AddScoped<IMedicationService, MedicationService>();
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -70,7 +75,11 @@ if (app.Environment.IsDevelopment())
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
     var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection")!;
-    using var npgsqlConnection = new NpgsqlConnection(connectionString);
+    var connectionBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+    {
+        Database = "postgres"
+    };
+    using var npgsqlConnection = new NpgsqlConnection(connectionBuilder.ConnectionString);
     npgsqlConnection.Open();
 
     using var command = npgsqlConnection.CreateCommand();
