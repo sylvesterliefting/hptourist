@@ -12,6 +12,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<Language> Languages => Set<Language>();
     public DbSet<Identification> Identificatios => Set<Identification>();
     public DbSet<EHIC> EHICs => Set<EHIC>();
+    public DbSet<Medicine> Medicines => Set<Medicine>();
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
 
