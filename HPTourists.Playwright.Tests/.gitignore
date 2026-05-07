@@ -10,3 +10,5 @@ node_modules/
 # TypeScript compiled output
 *.js
 *.js.map
+
+.auth/
