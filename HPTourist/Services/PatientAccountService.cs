@@ -42,7 +42,7 @@ public sealed class PatientAccountService(
             {
                 EncryptedEHICNumber = ehic,
                 ExpiryDate = DateTime.SpecifyKind(form.EhicExpiryDate!.Value, DateTimeKind.Utc),
-            }
+            },
         };
         db.Patients.Add(patient);
 
@@ -69,50 +69,6 @@ public sealed class PatientAccountService(
         user.Patient = patient;
         var principal = BuildPrincipal(user);
         await SignInAsync(principal);
-        return AccountResult.Ok();
-    }
-    
-    public async Task<AccountResult> AddPatientInformationAsync(PatientInformationInputForm form, CancellationToken ct = default)
-    {
-        var allergies = form.Allergies
-            .Select(a => new Allergy
-            {
-                Substance = a.Substance.Trim(),
-                Reaction = string.IsNullOrWhiteSpace(a.Reaction) ? null : a.Reaction.Trim(),
-            })
-            .Where(a => !string.IsNullOrWhiteSpace(a.Substance))
-            .GroupBy(a => new { Substance = a.Substance.ToUpperInvariant(), Reaction = a.Reaction?.ToUpperInvariant() })
-            .Select(g => g.First())
-            .ToList();
-
-        var patient = new Patient
-        {
-            FirstName = form.FirstName.Trim(),
-            LastName = form.LastName.Trim(),
-            DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
-            Gender = form.Gender!.Value,
-            PracticeId = SeededIds.TouristDoctorAmsterdamPractice,
-            BloodType = form.BloodType,
-            RhFactor = form.RhFactor,
-            Weight = form.Weight,
-            Allergies = allergies,
-        };
-
-        db.Patients.Add(patient);
-
-        try
-        {
-            await db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateException)
-        {
-            return AccountResult.Fail("Saving patient information failed. Please try again.");
-        }
-        catch (Exception)
-        {
-            return AccountResult.Fail("The database is currently unavailable. Please try again later.");
-        }
-
         return AccountResult.Ok();
     }
 
