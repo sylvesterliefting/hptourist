@@ -17,7 +17,7 @@ namespace HPTourist.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.6")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -44,7 +44,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Allergies");
+                    b.ToTable("Allergies", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
@@ -71,7 +71,7 @@ namespace HPTourist.Migrations
                     b.HasIndex("IdentificationId")
                         .IsUnique();
 
-                    b.ToTable("EHICs");
+                    b.ToTable("EHICs", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Employee", b =>
@@ -94,7 +94,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PracticeId");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Identification", b =>
@@ -137,7 +137,7 @@ namespace HPTourist.Migrations
                     b.HasIndex("CountryCode", "EncryptedDocumentNumber")
                         .IsUnique();
 
-                    b.ToTable("Identificatios");
+                    b.ToTable("Identificatios", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Language", b =>
@@ -152,7 +152,7 @@ namespace HPTourist.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Medicine", b =>
@@ -189,7 +189,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicine");
+                    b.ToTable("Medicine", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
@@ -244,7 +244,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PreferredLanguageId");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>
@@ -263,7 +263,7 @@ namespace HPTourist.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Practices");
+                    b.ToTable("Practices", (string)null);
 
                     b.HasData(
                         new
@@ -300,7 +300,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Prescriptions");
+                    b.ToTable("Prescriptions", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
@@ -322,7 +322,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("PrescriptionRequests");
+                    b.ToTable("PrescriptionRequests", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.User", b =>
@@ -367,7 +367,7 @@ namespace HPTourist.Migrations
                     b.HasIndex("PatientId")
                         .IsUnique();
 
-                    b.ToTable("Users", t =>
+                    b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_OneOfPatientOrEmployee", "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)");
                         });

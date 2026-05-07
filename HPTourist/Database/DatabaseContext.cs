@@ -12,6 +12,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<Language> Languages => Set<Language>();
     public DbSet<Identification> Identificatios => Set<Identification>();
     public DbSet<EHIC> EHICs => Set<EHIC>();
+    public DbSet<Medicine> Medicines => Set<Medicine>();
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
     public DbSet<Allergy> Allergies => Set<Allergy>();
@@ -20,11 +21,17 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Allergy>(entity =>
+        {
+            entity.Property(a => a.Substance).IsRequired().HasMaxLength(100);
+            entity.Property(a => a.Reaction).HasMaxLength(250);
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.Property(u => u.Email).IsRequired().HasMaxLength(254);
             entity.Property(u => u.PasswordHash).IsRequired();
-            entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(32);
+            entity.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(32);
             entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
 
             entity.HasIndex(u => u.Email).IsUnique();
@@ -58,16 +65,13 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Allergy>(entity =>
-        {
-            entity.Property(a => a.Substance).IsRequired().HasMaxLength(100);
-            entity.Property(a => a.Reaction).HasMaxLength(250);
-        });
 
         // EHIC numbers are unique across the EU.
         modelBuilder.Entity<EHIC>()
                     .HasIndex(e => e.EncryptedEHICNumber)
                     .IsUnique();
+
+        modelBuilder.Entity<Medicine>().ToTable("Medicine");
 
         modelBuilder.Entity<Identification>(entity =>
         {

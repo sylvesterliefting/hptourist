@@ -14,6 +14,64 @@ public sealed class PatientAccountService(
     IPasswordHasher<User> hasher,
     IHttpContextAccessor httpContextAccessor) : IPatientAccountService
 {
+    public async Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
+    {
+        var email = form.Email.Trim().ToLowerInvariant();
+        var ehic = form.EhicNumber.Trim().ToUpperInvariant();
+
+        if (await db.Users.AnyAsync(u => u.Email == email, ct))
+        {
+            return AccountResult.Fail("An account with this email already exists.");
+        }
+
+        if (await db.EHICs.AnyAsync(e => e.EncryptedEHICNumber == ehic, ct))
+        {
+            return AccountResult.Fail("An account with this EHIC number already exists.");
+        }
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+
+        var patient = new Patient
+        {
+            FirstName = form.FirstName.Trim(),
+            LastName = form.LastName.Trim(),
+            DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
+            Gender = form.Gender!.Value,
+            PracticeId = SeededIds.TouristDoctorAmsterdamPractice,
+            EHIC = new EHIC
+            {
+                EncryptedEHICNumber = ehic,
+                ExpiryDate = DateTime.SpecifyKind(form.EhicExpiryDate!.Value, DateTimeKind.Utc),
+            }
+        };
+        db.Patients.Add(patient);
+
+        var user = new User
+        {
+            Email = email,
+            Role = UserRole.Patient,
+            PatientId = patient.Id,
+            PasswordHash = string.Empty,
+        };
+        user.PasswordHash = hasher.HashPassword(user, form.Password);
+        db.Users.Add(user);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            return AccountResult.Fail("An account with this email or EHIC number already exists.");
+        }
+
+        user.Patient = patient;
+        var principal = BuildPrincipal(user);
+        await SignInAsync(principal);
+        return AccountResult.Ok();
+    }
+    
     public async Task<AccountResult> AddPatientInformationAsync(PatientInformationInputForm form, CancellationToken ct = default)
     {
         var allergies = form.Allergies
@@ -55,64 +113,6 @@ public sealed class PatientAccountService(
             return AccountResult.Fail("The database is currently unavailable. Please try again later.");
         }
 
-        return AccountResult.Ok();
-    }
-
-    public async Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default)
-    {
-        var email = form.Email.Trim().ToLowerInvariant();
-        var ehic = form.EhicNumber.Trim().ToUpperInvariant();
-
-        if (await db.Users.AnyAsync(u => u.Email == email, ct))
-        {
-            return AccountResult.Fail("An account with this email already exists.");
-        }
-
-        if (await db.EHICs.AnyAsync(e => e.EncryptedEHICNumber == ehic, ct))
-        {
-            return AccountResult.Fail("An account with this EHIC number already exists.");
-        }
-
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
-
-        var patient = new Patient
-        {
-            FirstName = form.FirstName.Trim(),
-            LastName = form.LastName.Trim(),
-            DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth!.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
-            Gender = form.Gender!.Value,
-            PracticeId = SeededIds.TouristDoctorAmsterdamPractice,
-            EHIC = new EHIC
-            {
-                EncryptedEHICNumber = ehic,
-                ExpiryDate = DateTime.SpecifyKind(form.EhicExpiryDate!.Value, DateTimeKind.Utc),
-            },
-        };
-        db.Patients.Add(patient);
-
-        var user = new User
-        {
-            Email = email,
-            Role = UserRole.Patient,
-            PatientId = patient.Id,
-            PasswordHash = string.Empty,
-        };
-        user.PasswordHash = hasher.HashPassword(user, form.Password);
-        db.Users.Add(user);
-
-        try
-        {
-            await db.SaveChangesAsync(ct);
-            await tx.CommitAsync(ct);
-        }
-        catch (DbUpdateException)
-        {
-            return AccountResult.Fail("An account with this email or EHIC number already exists.");
-        }
-
-        user.Patient = patient;
-        var principal = BuildPrincipal(user);
-        await SignInAsync(principal);
         return AccountResult.Ok();
     }
 

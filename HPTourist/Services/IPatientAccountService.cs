@@ -8,7 +8,6 @@ public interface IPatientAccountService
 {
     // High-level operations — the only ones the Razor pages need to know about.
     Task<AccountResult> AddPatientInformationAsync(PatientInformationInputForm form, CancellationToken ct = default);
-
     Task<AccountResult> RegisterAsync(PatientRegistrationForm form, CancellationToken ct = default);
 
     Task<AccountResult> LoginAsync(PatientLoginForm form, CancellationToken ct = default);
