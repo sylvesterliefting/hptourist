@@ -15,10 +15,13 @@ jobs:
         node-version: lts/*
     - name: Install dependencies
       run: npm ci
+      working-directory: HPTourists.Playwright.Tests
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+      working-directory: HPTourists.Playwright.Tests
     - name: Run Playwright tests
       run: npx playwright test
+      working-directory: HPTourists.Playwright.Tests
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
