@@ -1,0 +1,172 @@
+@attribute [Authorize(Roles = "Patient")]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject DatabaseContext DbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject IFarmacotherapeutischKompasScraperService FkScraperService
+
+<section class="mt-5">
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <h2 class="h4 mb-1">Contra-indicaties</h2>
+            <p class="text-muted mb-0">Bekijk contra-indicaties van uw voorgeschreven medicatie.</p>
+        </div>
+        <button type="button" class="btn btn-outline-secondary" @onclick="LoadContraIndicationsAsync" disabled="@isLoading">
+            Vernieuwen
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Contra-indicaties worden geladen...</p>
+    }
+    else if (!contraIndications.Any())
+    {
+        <p class="text-muted">Er is nog geen voorgeschreven medicatie waarvoor contra-indicaties kunnen worden getoond.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Medicatie</th>
+                        <th>Werkzame stof</th>
+                        <th>Voorschrijfdatum</th>
+                        <th>Contra-indicaties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in contraIndications)
+                    {
+                        <tr>
+                            <td>@item.MedicineNames</td>
+                            <td>@item.ActiveSubstance</td>
+                            <td>@item.PrescriptionDates</td>
+                            <td>
+                                @if (item.IsAvailable)
+                                {
+                                    <span style="white-space: pre-line;">@item.Text</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Geen contra-indicatie-informatie gevonden in het Farmacotherapeutisch Kompas.</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<ContraIndicationViewModel> contraIndications = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadContraIndicationsAsync();
+    }
+
+    private async Task LoadContraIndicationsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        contraIndications = [];
+
+        var patientId = await GetCurrentPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        var prescriptions = await DbContext.Prescriptions
+            .AsNoTracking()
+            .Where(p => p.PatientId == patientId.Value)
+            .Include(p => p.Medicines)
+            .OrderByDescending(p => p.Date)
+            .ToListAsync();
+
+        var medicinesByActiveSubstance = prescriptions
+            .SelectMany(p => p.Medicines.Select(m => new PrescribedMedicine(p.Date, m)))
+            .Where(m => !string.IsNullOrWhiteSpace(m.ActiveSubstance))
+            .GroupBy(m => m.ActiveSubstance.Trim(), StringComparer.OrdinalIgnoreCase)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        foreach (var medicineGroup in medicinesByActiveSubstance)
+        {
+            contraIndications.Add(await CreateContraIndicationViewModelAsync(medicineGroup));
+        }
+
+        isLoading = false;
+    }
+
+    private async Task<ContraIndicationViewModel> CreateContraIndicationViewModelAsync(IGrouping<string, PrescribedMedicine> medicineGroup)
+    {
+        var activeSubstance = medicineGroup.Key;
+        string? text = null;
+
+        try
+        {
+            text = await FkScraperService.GetContraIndicationAsync(activeSubstance);
+        }
+        catch
+        {
+            errorMessage = "Niet alle contra-indicaties konden worden opgehaald.";
+        }
+
+        return new ContraIndicationViewModel
+        {
+            Id = Guid.NewGuid(),
+            ActiveSubstance = activeSubstance,
+            MedicineNames = string.Join(", ", medicineGroup
+                .Select(m => m.Name)
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Order()),
+            PrescriptionDates = string.Join(", ", medicineGroup
+                .Select(m => m.Date.ToString("dd-MM-yyyy"))
+                .Distinct()
+                .Order()),
+            Text = text
+        };
+    }
+
+    private async Task<Guid?> GetCurrentPatientIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var patientIdValue = authState.User.FindFirstValue("PatientId");
+
+        return Guid.TryParse(patientIdValue, out var patientId)
+            ? patientId
+            : null;
+    }
+
+    private sealed class ContraIndicationViewModel
+    {
+        public Guid Id { get; init; }
+        public string ActiveSubstance { get; init; } = string.Empty;
+        public string MedicineNames { get; init; } = string.Empty;
+        public string PrescriptionDates { get; init; } = string.Empty;
+        public string? Text { get; init; }
+        public bool IsAvailable => !string.IsNullOrWhiteSpace(Text);
+    }
+
+    private sealed record PrescribedMedicine(DateTime Date, Medicine Medicine)
+    {
+        public string Name => Medicine.Name;
+        public string ActiveSubstance => Medicine.ActiveSubstance;
+    }
+}
