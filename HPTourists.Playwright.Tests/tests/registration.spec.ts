@@ -13,11 +13,15 @@ test('fill form', async ({ page }) => {
   await register.lastNameInput.fill('Doe');
   await register.dobInput.fill('1990-06-15');
   await register.genderSelect.selectOption('Female');
-  await register.ehicInput.fill('GB123456789012');
+  await register.ehicInput.fill('abcdefghij1234567890');
   await register.ehicExpiryInput.fill('2027-12-31');
-  await register.emailInput.fill('jane.doe@example.com');
-  await register.passwordInput.fill('P@ssw0rd!');
-  await register.passwordConfirmInput.fill('P@ssw0rd!');
+  await register.emailInput.fill(process.env.USEREMAIL ?? '');
+  await register.passwordInput.fill(process.env.PASSWORD ?? '');
+  await register.passwordConfirmInput.fill(process.env.PASSWORD ?? '');
+
+  await register.submitButton.click();
+  await expect(page.getByRole('alert')).toContainText("You've successfully registered — welcome!");
+
 
 });
 

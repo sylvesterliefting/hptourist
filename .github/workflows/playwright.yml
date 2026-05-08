@@ -36,6 +36,9 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       working-directory: HPTourists.Playwright.Tests
+      env:
+        USEREMAIL: ${{ secrets.USEREMAIL }}
+        PASSWORD: ${{ secrets.PASSWORD }}
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
