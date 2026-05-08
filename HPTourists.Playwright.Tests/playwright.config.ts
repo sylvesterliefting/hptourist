@@ -86,7 +86,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
    webServer: {
-     command: 'dotnet run --project ../HPTourists.WebApi/HPTourists.WebApi.csproj',
+     command: 'dotnet run --project ../HPTourist/HPTourist.csproj',
     url: 'http://localhost:5432',
  //    reuseExistingServer: !process.env.CI,
    },
