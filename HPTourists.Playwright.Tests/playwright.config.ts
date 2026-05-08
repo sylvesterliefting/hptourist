@@ -86,8 +86,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
    webServer: {
-     command: 'npm run start',
-    url: 'http://localhost:5148',
+     command: 'dotnet run --project ../HPTourists.WebApi/HPTourists.WebApi.csproj',
+    url: 'http://localhost:5432',
  //    reuseExistingServer: !process.env.CI,
    },
 });
