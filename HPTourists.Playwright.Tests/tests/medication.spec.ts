@@ -5,6 +5,7 @@ test.beforeEach(async ({ page }) => {
   const medication = new MedicationPage(page);
   await medication.goto();
   await page.getByRole('link', { name: 'Nederlands' }).click();
+  await page.waitForLoadState('networkidle');
 });
 
 test('open add new medication page', async ({ page }) => {

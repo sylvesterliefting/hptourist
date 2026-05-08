@@ -5,6 +5,7 @@ test.beforeEach(async ({ page }) => {
   const register = new RegisterPage(page);
   await register.goto();
   await page.getByRole('link', { name: 'English' }).click();
+  await page.waitForLoadState('networkidle');
 });
 
 test('fill form', async ({ page }) => {
