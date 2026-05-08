@@ -13,6 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddScoped<
+IFarmacotherapeutischKompasUrlService,
+FarmacotherapeutischKompasUrlService>();
+
+builder.Services.AddHttpClient<IFarmacotherapeutischKompasScraperService, FarmacotherapeutischKompasScraperService>();
+
 builder.Services.AddDbContextPool<DatabaseContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 builder.Services.AddLocalization(options =>
@@ -87,6 +93,9 @@ if (app.Environment.IsDevelopment())
 
     context.Database.Migrate();
     logger.LogInformation("Migrations applied");
+
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+    await DatabaseDevelopmentSeeder.SeedAsync(context, passwordHasher, logger);
 }
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

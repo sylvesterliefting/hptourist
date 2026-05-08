@@ -8,7 +8,7 @@ public sealed class MedicineForm
     [StringLength(100, ErrorMessage = "Medicatienaam mag maximaal 100 tekens zijn.")]
     public string Name { get; set; } = string.Empty;
 
-    [StringLength(20, ErrorMessage = "ATC-code mag maximaal 20 tekens zijn.")]
+    [StringLength(7, ErrorMessage = "ATC-code moet 7 tekens zijn.")]
     public string? AtcCode { get; set; }
 
     [Required(ErrorMessage = "Werkzame stof is verplicht.")]
