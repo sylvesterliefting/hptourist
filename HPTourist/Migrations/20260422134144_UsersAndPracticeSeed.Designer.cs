@@ -3,6 +3,7 @@ using System;
 using HPTourist.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,13 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HPTourist.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260422134144_UsersAndPracticeSeed")]
+    partial class UsersAndPracticeSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.7")
+                .HasAnnotation("ProductVersion", "10.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -164,7 +167,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicines");
+                    b.ToTable("Medicine");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
@@ -411,7 +414,7 @@ namespace HPTourist.Migrations
                         .IsRequired();
 
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany("Prescriptions")
+                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -432,7 +435,7 @@ namespace HPTourist.Migrations
             modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany("PrescriptionRequests")
+                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -465,10 +468,6 @@ namespace HPTourist.Migrations
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
                 {
                     b.Navigation("Identification");
-
-                    b.Navigation("PrescriptionRequests");
-
-                    b.Navigation("Prescriptions");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>

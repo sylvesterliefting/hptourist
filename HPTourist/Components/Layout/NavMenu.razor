@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject IStringLocalizer<NavMenu> Localizer
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">HPTourist</a>
     </div>
@@ -10,7 +12,7 @@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> @Localizer["Home"]
             </NavLink>
         </div>
 
@@ -31,6 +33,43 @@
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Prescription Request
             </NavLink>
         </div>
+        <AuthorizeView>
+            <Authorized Context="userContext">
+                <AuthorizeView Roles="Patient">
+                    <Authorized Context="patientContext">
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="patient/medication">
+                                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @Localizer["Medication"]
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+
+                <div class="nav-item px-3">
+                    <span class="nav-link">
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span>
+                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
+                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
+                    </span>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="logout">
+                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span> Logout
+                    </NavLink>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="bi bi-box-arrow-in-right-nav-menu" aria-hidden="true"></span>@Localizer["Login"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span>@Localizer["Register"]
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
 </div>
-

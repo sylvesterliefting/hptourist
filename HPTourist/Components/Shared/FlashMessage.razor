@@ -1,0 +1,16 @@
+@if (!string.IsNullOrEmpty(Message) && _texts.TryGetValue(Message, out var text))
+{
+    <div class="alert alert-success" role="alert">@text</div>
+}
+
+@code {
+    [Parameter]
+    public string? Message { get; set; }
+
+    private static readonly Dictionary<string, string> _texts = new()
+    {
+        ["registered"] = "You've successfully registered — welcome!",
+        ["loggedIn"] = "You've successfully logged in.",
+        ["loggedOut"] = "You've successfully logged out.",
+    };
+}

@@ -55,3 +55,43 @@ Na het wijzigen van de database kun je een migratie maken met:
 De migraties uitvoeren kan met:
 
     dotnet ef database update
+
+## Authenticatie
+
+### Registreren (`/register`)
+
+Een toerist maakt een patiëntaccount aan met voornaam, achternaam, geboortedatum, geslacht, EHIC-nummer + vervaldatum, e-mail en wachtwoord. Validaties draaien client- en serverside via DataAnnotations:
+
+- Voor- en achternaam: verplicht, max. 100 tekens.
+- Geboortedatum: verplicht, leeftijd tussen 0 en 100 jaar (`AgeRangeAttribute`).
+- Geslacht: verplicht (keuze uit de `Gender` enum).
+- EHIC-nummer: verplicht, exact 20 alfanumerieke tekens, **uniek over alle accounts** (gecontroleerd in de service plus afgedwongen door een unique index op `EHICs.EncryptedEHICNumber`); vervaldatum moet in de toekomst liggen (`FutureDateAttribute`).
+- E-mail: verplicht, geldig e-mailadres, uniek over alle accounts.
+- Wachtwoord: min. 8 tekens; bevestiging moet matchen (`Compare`).
+
+De praktijk wordt automatisch op Huisartsenpraktijk Tourist Doctor Amsterdam gezet (geseed via `SeededIds`). Bij succes wordt direct ingelogd.
+
+### Inloggen (`/login`)
+
+Authenticatie loopt via cookies (geen JWT). De cookie heet `HPTourist.Auth`, heeft een sliding expiry van 8 uur en wordt door `PatientAccountService` geschreven met `HttpContext.SignInAsync`. Wachtwoorden worden geverifieerd met `IPasswordHasher<User>` (PBKDF2). De claims bevatten `NameIdentifier`, `Name` (e-mail), `Role`, en — afhankelijk van het accounttype — `PatientId`/`EmployeeId` plus voor- en achternaam.
+
+> **Let op:** de auth-pagina's draaien in static SSR-mode, niet in Interactive Server. De cookie moet via response headers op de POST geschreven worden, en dat kan niet via de Blazor-circuit.
+
+### Uitloggen (`/logout`)
+
+Verwijdert de cookie via `SignOutAsync` en stuurt de gebruiker terug naar de homepagina met `?msg=loggedOut`.
+
+## Localisatie 
+
+### Resources
+In de resource files staan alle keys en bijbehorende tekst in engels, nederlands of pools. De keys kunnen worden gebruikt in de code in plaats van de tekst. De resource files volgen dezelfde structuur als de rest van het project, de homepagina staat bijvoorbeeld HPTourist/Components/Pages/Home.razor en de resources(met de tekst die nodig is op die pagina) staan vervolgens in Resources/Components/Pages/Home.en.resx etc. Elke nieuwe component heeft dus zijn eigen groepje files nodig.
+
+### Gebruik in components
+Gebruik @inject IStringLocalizer<"*naamComponent*"> Localizer . Vervolgens gebruik je op de plek waar je vertaalbare tekst wilt hebben de localizer met de naam van de key ipv. de tekst <h1>Welcome</h1> wordt bijvoorbeeld <h1>@Localizer["Welcome"]</h1>.
+Andere voorbeelden:
+ placeholder="@((string)Localizer["EHICPlaceholder"])"
+<p>@string.Format(Localizer["Welcome"], userName)</p> value:Welcome  key:"Hello, {0}!"
+ @foreach (var g in Enum.GetValues<Gender>())
+                {
+                    <option value="@g">@Localizer[g.ToString()]</option>
+                }
