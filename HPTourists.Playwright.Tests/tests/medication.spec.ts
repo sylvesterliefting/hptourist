@@ -14,6 +14,18 @@ test('open add new medication page', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Medicatie toevoegen' })).toBeVisible();
 });
 
+test('Validate mandatory fields', async ({ page }) => {
+  const medication = new MedicationPage(page);
+    await medication.addMedication.click()
+    await expect(page.getByRole('heading', { name: 'Medicatie toevoegen' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('div').filter({ hasText: /^Medicatienaam is verplicht\.$/ })).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^Werkzame stof is verplicht\.$/ })).toBeVisible();
+    await expect(page.locator('div').filter({ hasText: /^Farmaceutische vorm is verplicht\.$/ })).toBeVisible();
+
+});
+
 test('Add new medication', async ({ page }) => {
   const medication = new MedicationPage(page);
     await medication.addMedication.click()
