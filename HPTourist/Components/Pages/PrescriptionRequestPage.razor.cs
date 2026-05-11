@@ -15,16 +15,17 @@ public partial class PrescriptionRequestPage : ComponentBase
     public Guid id { get; set; }
 
     private string searchTerm = "";
+    private List<Medicine> allMedicines = [];
     private List<Medicine> results = [];
     private int pageNumber = 1;
-    private int pageSize = 20;
+    private readonly int pageSize = 20;
     private int totalResults = 0;
     private int totalPages = 0;
     private bool searched = false;
     private bool saved = false;
     private string? errorMessage;
 
-    public Prescription prescription = new()
+    private readonly Prescription prescription = new()
     {
         Id = Guid.NewGuid(),
         Date = DateTime.UtcNow,
@@ -49,28 +50,27 @@ public partial class PrescriptionRequestPage : ComponentBase
     async Task Search()
     {
         pageNumber = 1;
-        await LoadResults();
+        LoadResults();
     }
 
     async Task PreviousPage()
     {
         pageNumber--;
-        await LoadResults();
+        LoadResults();
     }
 
     async Task NextPage()
     {
         pageNumber++;
-        await LoadResults();
+        LoadResults();
     }
 
     protected async override Task OnInitializedAsync()
     {
-        // PrescriptionRequest uit de database ophalen
         request = await Db.PrescriptionRequests
-            .Include(r => r.Patient)
-            .Include(r => r.Medicines)
-            .FirstOrDefaultAsync(r => r.Id == id);
+            .Include(PrescriptionRequest => PrescriptionRequest.Patient)
+            .Include(PrescriptionRequest => PrescriptionRequest.Medicines)
+            .FirstOrDefaultAsync(PrescriptionRequest => PrescriptionRequest.Id == id);
 
         if (request != null)
         {
@@ -78,10 +78,9 @@ public partial class PrescriptionRequestPage : ComponentBase
             prescription.PrescriptionRequest = request;
         }
 
-        await LoadResults();
+        allMedicines = LoadAllMedicines();
+        LoadResults();
     }
-
-
 
     async Task SavePrescription()
     {
@@ -90,17 +89,22 @@ public partial class PrescriptionRequestPage : ComponentBase
 
         try
         {
-            var employee = await Db.Employees.FirstOrDefaultAsync();
+            var employee = await Db.Employees.FirstOrDefaultAsync();//TODO: get current employee from auth context
             if (employee == null)
             {
                 errorMessage = "Geen employee gevonden in de database.";
                 return;
             }
 
+            List<Guid> medicineIds = [.. prescription.Medicines.Select(Medicine => Medicine.Id)];
+            var existingIds = await Db.Set<Medicine>()
+                .Where(Medicine => medicineIds.Contains(Medicine.Id))
+                .Select(Medicine => Medicine.Id)
+                .ToHashSetAsync();
+
             foreach (var medicine in prescription.Medicines)
             {
-                var exists = await Db.Set<Medicine>().AnyAsync(m => m.Id == medicine.Id);
-                if (!exists)
+                if (!existingIds.Contains(medicine.Id))
                     Db.Set<Medicine>().Add(medicine);
                 else
                     Db.Entry(medicine).State = EntityState.Unchanged;
@@ -117,9 +121,9 @@ public partial class PrescriptionRequestPage : ComponentBase
             };
 
             Db.Prescriptions.Add(newPrescription);
-            await Db.SaveChangesAsync();
 
             request.RequestStatus = PrescriptionRequest.Status.Processed;
+
             await Db.SaveChangesAsync();
 
             saved = true;
@@ -130,9 +134,8 @@ public partial class PrescriptionRequestPage : ComponentBase
         }
     }
 
-    async Task LoadResults()
+    private List<Medicine> LoadAllMedicines()
     {
-        searched = true;
         var path = Path.Combine(Env.WebRootPath, "data", "medicijnen.csv");
         using var reader = new StreamReader(path);
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -143,29 +146,34 @@ public partial class PrescriptionRequestPage : ComponentBase
         };
         using var csv = new CsvReader(reader, config);
         csv.Context.RegisterClassMap<MedicineMap>();
+        return [.. csv.GetRecords<Medicine>()];
+    }
 
-        var allMatches = csv.GetRecords<Medicine>()
-            .Where(m =>
+    void LoadResults()
+    {
+        searched = true;
+        var filtered = allMedicines
+            .Where(Medicine =>
                 string.IsNullOrWhiteSpace(searchTerm) ||
-                m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                m.ActiveSubstance.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                m.AtcCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                Medicine.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                Medicine.ActiveSubstance.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                Medicine.AtcCode.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        totalResults = allMatches.Count;
+        totalResults = filtered.Count;
         totalPages = (int)Math.Ceiling(totalResults / (double)pageSize);
-        results = allMatches.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        results = filtered.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
     }
 
     private class MedicineMap : ClassMap<Medicine>
     {
         public MedicineMap()
         {
-            Map(m => m.Id).Convert(row => Guid.NewGuid());
-            Map(m => m.Name).Name("PRODUCTNAAM");
-            Map(m => m.AtcCode).Name("ATC");
-            Map(m => m.ActiveSubstance).Name("WERKZAMESTOFFEN");
-            Map(m => m.PharmaceuticalForm).Name("FARMACEUTISCHEVORM");
+            Map(Medicine => Medicine.Id).Convert(row => Guid.NewGuid());
+            Map(Medicine => Medicine.Name).Name("PRODUCTNAAM");
+            Map(Medicine => Medicine.AtcCode).Name("ATC");
+            Map(Medicine => Medicine.ActiveSubstance).Name("WERKZAMESTOFFEN");
+            Map(Medicine => Medicine.PharmaceuticalForm).Name("FARMACEUTISCHEVORM");
         }
     }
 }
