@@ -27,6 +27,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HPTourist.Data\HPTourist.Data.csproj" />
+    <ProjectReference Include="..\HPTourist.Features\HPTourist.Features.csproj" />
+    <ProjectReference Include="..\HPTourist.Pdf\HPTourist.Pdf.csproj" />
   </ItemGroup>
 
 </Project>

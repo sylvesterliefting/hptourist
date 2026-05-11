@@ -14,7 +14,10 @@
         <h1 class="mb-1">Mijn medicatie</h1>
         <p class="text-muted mb-0">Bekijk uw voorgeschreven medicatie en beheer medicatie die u zelf heeft toegevoegd.</p>
     </div>
-    <a href="/patient/medication/add" class="btn btn-primary">Medicatie toevoegen</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="/patient/medication/download" class="btn btn-outline-secondary">PDF downloaden</a>
+        <a href="/patient/medication/add" class="btn btn-primary">Medicatie toevoegen</a>
+    </div>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
