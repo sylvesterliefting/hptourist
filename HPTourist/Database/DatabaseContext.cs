@@ -15,16 +15,23 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<Medicine> Medicines => Set<Medicine>();
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
+    public DbSet<Allergy> Allergies => Set<Allergy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Allergy>(entity =>
+        {
+            entity.Property(a => a.Substance).IsRequired().HasMaxLength(100);
+            entity.Property(a => a.Reaction).HasMaxLength(250);
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.Property(u => u.Email).IsRequired().HasMaxLength(254);
             entity.Property(u => u.PasswordHash).IsRequired();
-            entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(32);
+            entity.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(32);
             entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
 
             entity.HasIndex(u => u.Email).IsUnique();
@@ -49,12 +56,22 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.LastName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.Gender).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.BloodType).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.RhFactor).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.Weight).HasColumnType("real");
+
+            entity.HasMany(p => p.Allergies)
+                  .WithOne()
+                  .OnDelete(DeleteBehavior.Cascade);
         });
+
 
         // EHIC numbers are unique across the EU.
         modelBuilder.Entity<EHIC>()
                     .HasIndex(e => e.EncryptedEHICNumber)
                     .IsUnique();
+
+        modelBuilder.Entity<Medicine>().ToTable("Medicine");
 
         modelBuilder.Entity<Identification>(entity =>
         {
