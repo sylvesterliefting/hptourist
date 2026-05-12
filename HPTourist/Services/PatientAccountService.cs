@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Linq;
 using HPTourist.Data.DTOs;
 using HPTourist.Data.Models;
 using HPTourist.Database;
@@ -69,6 +70,77 @@ public sealed class PatientAccountService(
         user.Patient = patient;
         var principal = BuildPrincipal(user);
         await SignInAsync(principal);
+        return AccountResult.Ok();
+    }
+
+    public async Task<AccountResult> AddPatientInformationAsync(PatientInformationInputForm form, CancellationToken ct = default)
+    {
+        // Determine the current user from the HttpContext
+        var userIdString = RequireHttpContext().User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        {
+            return AccountResult.Fail("Not authenticated.");
+        }
+
+        var user = await db.Users
+            .Include(u => u.Patient)
+                .ThenInclude(p => p.Allergies)
+            .SingleOrDefaultAsync(u => u.Id == userId, ct);
+
+        if (user is null || user.Patient is null)
+        {
+            return AccountResult.Fail("No patient associated with the current account.");
+        }
+
+        var patient = user.Patient;
+
+        // Update basic fields
+        patient.FirstName = form.FirstName.Trim();
+        patient.LastName = form.LastName.Trim();
+        if (form.DateOfBirth is not null)
+        {
+            patient.DateOfBirth = DateTime.SpecifyKind(form.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+        }
+        if (form.BloodType is not null)
+        {
+            patient.BloodType = form.BloodType.Value;
+        }
+        if (form.RhFactor is not null)
+        {
+            patient.RhFactor = form.RhFactor.Value;
+        }
+        patient.Weight = form.Weight;
+
+        // Replace allergies: remove any existing and add the new ones provided
+        if (patient.Allergies is not null && patient.Allergies.Any())
+        {
+            db.Allergies.RemoveRange(patient.Allergies);
+            patient.Allergies.Clear();
+        }
+
+        var newAllergies = form.Allergies
+            .Where(a => !string.IsNullOrWhiteSpace(a.Substance))
+            .Select(a => new Allergy
+            {
+                Substance = a.Substance.Trim(),
+                Reaction = string.IsNullOrWhiteSpace(a.Reaction) ? null : a.Reaction.Trim(),
+            })
+            .ToList();
+
+        foreach (var a in newAllergies)
+        {
+            patient.Allergies.Add(a);
+        }
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            return AccountResult.Fail("Failed to save patient information.");
+        }
+
         return AccountResult.Ok();
     }
 
