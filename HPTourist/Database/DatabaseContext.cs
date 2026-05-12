@@ -17,9 +17,9 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
     public DbSet<Allergy> Allergies => Set<Allergy>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+   protected override void OnModelCreating(ModelBuilder modelBuilder)
+   {
+      base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Allergy>(entity =>
         {
@@ -31,31 +31,31 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
         {
             entity.Property(u => u.Email).IsRequired().HasMaxLength(254);
             entity.Property(u => u.PasswordHash).IsRequired();
-            entity.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(32);
+            entity.Property(u => u.Role).IsRequired();
             entity.Property(u => u.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
 
-            entity.HasIndex(u => u.Email).IsUnique();
+         entity.HasIndex(u => u.Email).IsUnique();
 
-            entity.HasOne(u => u.Patient)
-                  .WithOne()
-                  .HasForeignKey<User>(u => u.PatientId)
-                  .OnDelete(DeleteBehavior.Restrict);
+         entity.HasOne(u => u.Patient)
+                 .WithOne()
+                 .HasForeignKey<User>(u => u.PatientId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(u => u.Employee)
-                  .WithOne()
-                  .HasForeignKey<User>(u => u.EmployeeId)
-                  .OnDelete(DeleteBehavior.Restrict);
+         entity.HasOne(u => u.Employee)
+                 .WithOne()
+                 .HasForeignKey<User>(u => u.EmployeeId)
+                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.ToTable(t => t.HasCheckConstraint(
-                "CK_Users_OneOfPatientOrEmployee",
-                "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)"));
-        });
+         entity.ToTable(t => t.HasCheckConstraint(
+               "CK_Users_OneOfPatientOrEmployee",
+               "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)"));
+      });
 
         modelBuilder.Entity<Patient>(entity =>
         {
             entity.Property(p => p.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(p => p.LastName).IsRequired().HasMaxLength(100);
-            entity.Property(p => p.Gender).HasConversion<string>().HasMaxLength(16);
+            entity.Property(p => p.Gender);
             entity.Property(p => p.BloodType).HasConversion<string>().HasMaxLength(16);
             entity.Property(p => p.RhFactor).HasConversion<string>().HasMaxLength(16);
             entity.Property(p => p.Weight).HasColumnType("real");
@@ -79,11 +79,11 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.HasIndex(e => new { e.CountryCode, e.EncryptedDocumentNumber }).IsUnique();
         });
 
-        modelBuilder.Entity<Practice>().HasData(new Practice
-        {
-            Id = SeededIds.TouristDoctorAmsterdamPractice,
-            Name = "Huisartsenpraktijk Tourist Doctor Amsterdam",
-            Address = "Damrak 1, 1012 LG Amsterdam",
-        });
-    }
+      modelBuilder.Entity<Practice>().HasData(new Practice
+      {
+         Id = SeededIds.TouristDoctorAmsterdamPractice,
+         Name = "Huisartsenpraktijk Tourist Doctor Amsterdam",
+         Address = "Damrak 1, 1012 LG Amsterdam",
+      });
+   }
 }
