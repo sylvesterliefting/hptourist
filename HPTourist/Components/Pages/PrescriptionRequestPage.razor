@@ -1,0 +1,117 @@
+@page "/prescription-request/{id:guid}"
+@using CsvHelper
+@using CsvHelper.Configuration
+@using System.Globalization
+@using HPTourist.Data.Models
+@inject IWebHostEnvironment Env
+@inject HPTourist.Database.DatabaseContext Db
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components
+
+@rendermode InteractiveServer
+
+<div class="Container">
+    <div class="Linkerkant">
+        <h1>Recept aanvraag</h1>
+
+        @if (request != null)
+        {
+            <span class="status-badge">@request.RequestStatus</span>
+            <p style="margin-top:8px">Datum: @request.Date.ToShortDateString()</p>
+
+            <h2>Patient</h2>
+            <div class="patient-card">
+                <p><strong>@request.Patient.FirstName @request.Patient.LastName</strong></p>
+                <p>Geboortedatum: @request.Patient.DateOfBirth.ToShortDateString()</p>
+            </div>
+
+            <h2>Gevraagde medicijnen</h2>
+            <table>
+                <thead>
+                    <tr><th>Naam</th><th>ATC</th><th>Vorm</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in request.Medicines)
+                    {
+                        <tr>
+                            <td>@m.Name</td>
+                            <td>@m.AtcCode</td>
+                            <td>@m.PharmaceuticalForm</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <h2>Gekozen medicijnen</h2>
+        @if (prescription.Medicines.Any())
+        {
+            <table>
+                <thead>
+                    <tr><th>Naam</th><th>ATC</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in prescription.Medicines)
+                    {
+                        <tr>
+                            <td>@m.Name</td>
+                            <td>@m.AtcCode</td>
+                            <td><button class="danger" @onclick="() => RemoveMedicine(m)">Verwijder</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button class="success" @onclick="SavePrescription">Opslaan als recept</button>
+        }
+        else
+        {
+            <p>Nog geen medicijnen gekozen.</p>
+        }
+
+        @if (saved)
+        {
+            <div class="alert-success">Recept succesvol opgeslagen.</div>
+        }
+        @if (errorMessage != null)
+        {
+            <div class="alert-error">@errorMessage</div>
+        }
+    </div>
+
+    <div class="Rechterkant">
+        <div class="search-bar">
+            <input @bind="searchTerm" placeholder="Zoek op naam, stof of ATC..." />
+            <button @onclick="Search">Zoeken</button>
+        </div>
+
+        @if (results.Any())
+        {
+            <table>
+                <thead>
+                    <tr><th>Naam</th><th>Werkzame stof</th><th>ATC</th><th>Vorm</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in results)
+                    {
+                        <tr @onclick="() => AddMedicine(m)">
+                            <td>@m.Name</td>
+                            <td>@m.ActiveSubstance</td>
+                            <td>@m.AtcCode</td>
+                            <td>@m.PharmaceuticalForm</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <button @onclick="PreviousPage" disabled="@(pageNumber == 1)">Vorige</button>
+                <p>Resultaten: @totalResults | Pagina @pageNumber van @totalPages</p>
+                <button @onclick="NextPage" disabled="@(pageNumber == totalPages)">Volgende</button>
+            </div>
+        }
+        else if (searched)
+        {
+            <p>Geen resultaten gevonden.</p>
+        }
+    </div>
+</div>
