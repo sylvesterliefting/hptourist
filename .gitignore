@@ -419,3 +419,6 @@ FodyWeavers.xsd
 
 # Local database
 db-data/
+
+# Rider
+.idea/

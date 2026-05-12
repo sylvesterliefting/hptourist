@@ -22,6 +22,31 @@ namespace HPTourist.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HPTourist.Data.Models.Allergy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reaction")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Substance")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("Allergies", (string)null);
+                });
+
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
                 {
                     b.Property<Guid>("Id")
@@ -46,7 +71,7 @@ namespace HPTourist.Migrations
                     b.HasIndex("IdentificationId")
                         .IsUnique();
 
-                    b.ToTable("EHICs");
+                    b.ToTable("EHICs", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Employee", b =>
@@ -69,7 +94,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PracticeId");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Identification", b =>
@@ -112,7 +137,7 @@ namespace HPTourist.Migrations
                     b.HasIndex("CountryCode", "EncryptedDocumentNumber")
                         .IsUnique();
 
-                    b.ToTable("Identificatios");
+                    b.ToTable("Identificatios", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Language", b =>
@@ -127,7 +152,7 @@ namespace HPTourist.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Medicine", b =>
@@ -164,7 +189,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicines");
+                    b.ToTable("Medicine", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
@@ -172,6 +197,10 @@ namespace HPTourist.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BloodType")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
@@ -200,6 +229,13 @@ namespace HPTourist.Migrations
                     b.Property<Guid?>("PreferredLanguageId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("RhFactor")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<float?>("Weight")
+                        .HasColumnType("real");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EHICId");
@@ -208,7 +244,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PreferredLanguageId");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>
@@ -227,7 +263,7 @@ namespace HPTourist.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Practices");
+                    b.ToTable("Practices", (string)null);
 
                     b.HasData(
                         new
@@ -264,7 +300,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Prescriptions");
+                    b.ToTable("Prescriptions", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
@@ -286,7 +322,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("PrescriptionRequests");
+                    b.ToTable("PrescriptionRequests", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.User", b =>
@@ -331,10 +367,18 @@ namespace HPTourist.Migrations
                     b.HasIndex("PatientId")
                         .IsUnique();
 
-                    b.ToTable("Users", t =>
+                    b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_OneOfPatientOrEmployee", "(\"PatientId\" IS NOT NULL) <> (\"EmployeeId\" IS NOT NULL)");
                         });
+                });
+
+            modelBuilder.Entity("HPTourist.Data.Models.Allergy", b =>
+                {
+                    b.HasOne("HPTourist.Data.Models.Patient", null)
+                        .WithMany("Allergies")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.EHIC", b =>
@@ -411,7 +455,7 @@ namespace HPTourist.Migrations
                         .IsRequired();
 
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany("Prescriptions")
+                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -432,7 +476,7 @@ namespace HPTourist.Migrations
             modelBuilder.Entity("HPTourist.Data.Models.PrescriptionRequest", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany("PrescriptionRequests")
+                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -464,11 +508,9 @@ namespace HPTourist.Migrations
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
                 {
+                    b.Navigation("Allergies");
+
                     b.Navigation("Identification");
-
-                    b.Navigation("PrescriptionRequests");
-
-                    b.Navigation("Prescriptions");
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>
