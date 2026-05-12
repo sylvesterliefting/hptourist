@@ -189,7 +189,7 @@ namespace HPTourist.Migrations
 
                     b.HasIndex("PrescriptionRequestId");
 
-                    b.ToTable("Medicine", (string)null);
+                    b.ToTable("Medicines", (string)null);
                 });
 
             modelBuilder.Entity("HPTourist.Data.Models.Patient", b =>
