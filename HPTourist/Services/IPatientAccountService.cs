@@ -12,6 +12,8 @@ public interface IPatientAccountService
 
     Task<AccountResult> LoginAsync(PatientLoginForm form, CancellationToken ct = default);
 
+    Task<AccountResult> ChangePasswordAsync(ChangePasswordForm form, CancellationToken ct = default);
+
     Task LogoutAsync();
 
     // Atomic operations — composed by the high-level methods above, exposed for reuse/testing.
