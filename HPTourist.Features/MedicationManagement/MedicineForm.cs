@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace HPTourist.Data.DTOs;
+namespace HPTourist.Features.MedicationManagement;
 
 public sealed class MedicineForm
 {

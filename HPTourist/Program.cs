@@ -1,6 +1,9 @@
 using HPTourist.Components;
 using HPTourist.Data.Models;
 using HPTourist.Database;
+using HPTourist.Features.MedicationOverview;
+using HPTourist.Features.MedicationOverview.Infrastructure;
+using HPTourist.Pdf.Rendering;
 using HPTourist.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +36,10 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
+builder.Services.AddScoped<IMedicationOverviewService, MedicationOverviewQueryService>();
+builder.Services.AddSingleton<PdfDocumentWriter>();
+builder.Services.AddSingleton<IMedicationOverviewPdfRenderer, MedicationOverviewPdfRenderer>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
