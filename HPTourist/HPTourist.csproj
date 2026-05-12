@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Folder Include="Database\" />
+    <Folder Include="Resources\Components\Shared\" />
   </ItemGroup>
 
   <ItemGroup>

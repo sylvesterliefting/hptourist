@@ -1,10 +1,14 @@
-﻿<h3>Prescription requests</h3>
+﻿@inject IStringLocalizer<PrescriptionRequests> Localizer
 
 <div class="d-flex flex-column gap-3">
-    @if (prescriptionRequests.Count == 0)
+    @if (prescriptionRequests == null)
+    {
+        <div>@Localizer["Loading"]</div>
+    }
+    else if (prescriptionRequests.Count == 0)
     {
         <div class="alert alert-secondary">
-            No prescription requests.
+            @Localizer["NoPrescriptionRequests"]
         </div>
     }
     else
@@ -14,12 +18,14 @@
             <a class="card" href="#">
                 <div class="card-body">
                     <div>
-                        <b>Patient:</b> @prescriptionRequest.Patient.FirstName @prescriptionRequest.Patient.LastName
+                        <b>@Localizer["Patient"]:</b> @prescriptionRequest.Patient.FirstName
+                        @prescriptionRequest.Patient.LastName
+                        (@patientService.GetPatientAge(prescriptionRequest.Patient) @Localizer["YearsOld"])
                     </div>
                     <div>
-                        <b>Date: </b> @prescriptionRequest.Date
+                        <b>@Localizer["Date"]: </b> @prescriptionRequest.Date
                     </div>
-                </div> 
+                </div>
             </a>
         }
     }

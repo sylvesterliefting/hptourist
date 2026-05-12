@@ -1,21 +1,18 @@
-using HPTourist.Database;
 using HPTourist.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using HPTourist.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace HPTourist.Components.Shared;
 
-public partial class PrescriptionRequests(DatabaseContext databaseContext)
+public partial class PrescriptionRequests(IPrescriptionRequestService prescriptionRequestService, IPatientService patientService)
 {
-    private readonly DatabaseContext databaseContext = databaseContext;
-    private List<PrescriptionRequest> prescriptionRequests = [];
+    [Parameter]
+    public List<PrescriptionRequest.Status>? StatusFilter { get; set; }
 
-    protected override void OnInitialized()
-    {
-        prescriptionRequests = GetPrescriptionRequests();
-    }
+    private List<PrescriptionRequest>? prescriptionRequests = null;
 
-    private List<PrescriptionRequest> GetPrescriptionRequests()
+    protected override async Task OnInitializedAsync()
     {
-        return [.. databaseContext.PrescriptionRequests.Where(pr => pr.RequestStatus == PrescriptionRequest.Status.Pending).Include(pr => pr.Patient)];
+        prescriptionRequests = await prescriptionRequestService.GetPrescriptionRequestsByStatusesAsync(StatusFilter);
     }
 }

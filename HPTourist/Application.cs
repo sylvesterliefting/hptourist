@@ -43,6 +43,8 @@ namespace HPTourist
 
          builder.Services.AddHttpContextAccessor();
          builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
+         builder.Services.AddScoped<IPrescriptionRequestService, PrescriptionRequestService>();
+         builder.Services.AddScoped<IPatientService, PatientService>();
          builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
          builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -99,6 +101,9 @@ namespace HPTourist
 
             context.Database.Migrate();
             logger.LogInformation("Migrations applied");
+
+            DatabaseSeeder.SeedDatabase(scope.ServiceProvider);
+            logger.LogInformation("Added database seed data");
          }
 
          app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
