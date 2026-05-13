@@ -6,7 +6,7 @@
     {
         <a href="@GetSwitchUrl(culture.Name)" 
            class="@(IsActive(culture.Name) ? "active" : "")">
-            @culture.NativeName
+            @culture.TextInfo.ToTitleCase(culture.NativeName)
         </a>
     }
 </div>
