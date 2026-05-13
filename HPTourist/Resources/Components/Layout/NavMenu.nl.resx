@@ -129,4 +129,7 @@
   <data name="Medication" xml:space="preserve">
     <value>Medicatie</value>
   </data>
+  <data name="Patient Information" xml:space="preserve">
+    <value>Patiënt Informatie</value>
+  </data>
 </root>
