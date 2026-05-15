@@ -6,7 +6,7 @@
     {
         <a href="@GetSwitchUrl(culture.Name)" 
            class="@(IsActive(culture.Name) ? "active" : "")">
-            @culture.TextInfo.ToTitleCase(culture.NativeName)
+            @GetDisplayName(culture)
         </a>
     }
 </div>
@@ -29,5 +29,13 @@
     private bool IsActive(string culture)
     {
         return CultureInfo.CurrentCulture.Name.StartsWith(culture);
+    }
+
+    private static string GetDisplayName(CultureInfo culture)
+    {
+        var nativeName = culture.NativeName;
+        return string.Concat(
+            nativeName[..1].ToUpper(culture),
+            nativeName.AsSpan(1));
     }
 }
