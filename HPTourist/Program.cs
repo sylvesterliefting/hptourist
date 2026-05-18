@@ -1,4 +1,11 @@
-using HPTourist;
+using HPTourist.Components;
+using HPTourist.Data.Models;
+using HPTourist.Database;
+using HPTourist.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
