@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Popros o recepte</value></data>
+  <data name="Heading" xml:space="preserve"><value>Popros o recepte</value></data>
+  <data name="Intro" xml:space="preserve"><value>Wybierz przepisane leki, dla ktorych potrzebujesz nowej recepty.</value></data>
+  <data name="Back" xml:space="preserve"><value>Powrot</value></data>
+  <data name="LoadingMedication" xml:space="preserve"><value>Ladowanie lekow...</value></data>
+  <data name="NoPrescribedMedication" xml:space="preserve"><value>W dokumentacji nie ma jeszcze przepisanych lekow.</value></data>
+  <data name="RequestColumn" xml:space="preserve"><value>Wniosek</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Lek</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Substancja czynna</value></data>
+  <data name="FormColumn" xml:space="preserve"><value>Forma</value></data>
+  <data name="LastPrescriptionColumn" xml:space="preserve"><value>Ostatnia recepta</value></data>
+  <data name="RequestMedicineAriaLabel" xml:space="preserve"><value>Popros o ponowna recepte na {0}</value></data>
+  <data name="Submitting" xml:space="preserve"><value>Wysylanie wniosku...</value></data>
+  <data name="Submit" xml:space="preserve"><value>Popros o recepte</value></data>
+  <data name="OneMedicineSelected" xml:space="preserve"><value>Wybrano 1 lek</value></data>
+  <data name="MultipleMedicinesSelected" xml:space="preserve"><value>Wybrano {0} lekow</value></data>
+  <data name="RequestSubmitted" xml:space="preserve"><value>Wniosek o recepte zostal wyslany i czeka na ocene.</value></data>
+</root>

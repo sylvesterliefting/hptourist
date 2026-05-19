@@ -5,6 +5,7 @@
     @foreach (var culture in SupportedCultures)
     {
         <a href="@GetSwitchUrl(culture.Name)" 
+           data-enhance-nav="false"
            class="@(IsActive(culture.Name) ? "active" : "")">
             @GetDisplayName(culture)
         </a>
@@ -14,8 +15,8 @@
 @code {
     private static readonly CultureInfo[] SupportedCultures =
     [
-        new CultureInfo("en"),
         new CultureInfo("nl"),
+        new CultureInfo("en"),
         new CultureInfo("pl"),
     ];
 
@@ -28,7 +29,7 @@
 
     private bool IsActive(string culture)
     {
-        return CultureInfo.CurrentCulture.Name.StartsWith(culture);
+        return CultureInfo.CurrentUICulture.Name.StartsWith(culture);
     }
 
     private static string GetDisplayName(CultureInfo culture)

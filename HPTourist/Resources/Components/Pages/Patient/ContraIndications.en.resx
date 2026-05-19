@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Heading" xml:space="preserve"><value>Contraindications</value></data>
+  <data name="Intro" xml:space="preserve"><value>View contraindications for your prescribed medication.</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="LoadingContraIndications" xml:space="preserve"><value>Loading contraindications...</value></data>
+  <data name="NoContraIndications" xml:space="preserve"><value>There is no prescribed medication for which contraindications can be shown yet.</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Medication</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Active substance</value></data>
+  <data name="PrescriptionDateColumn" xml:space="preserve"><value>Prescription date</value></data>
+  <data name="ContraIndicationsColumn" xml:space="preserve"><value>Contraindications</value></data>
+  <data name="NoFkInformation" xml:space="preserve"><value>No contraindication information was found in the Farmacotherapeutisch Kompas.</value></data>
+  <data name="ContraIndicationsFetchFailed" xml:space="preserve"><value>Not all contraindications could be retrieved.</value></data>
+</root>

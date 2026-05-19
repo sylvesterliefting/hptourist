@@ -25,6 +25,8 @@ public class Patient
     public List<Prescription> Prescriptions { get; set; } = [];
 
     public List<PrescriptionRequest> PrescriptionRequests { get; set; } = [];
+
+    public List<PatientMedication> PatientMedications { get; set; } = [];
     
     public ICollection<Allergy> Allergies { get; set; } = [];
    

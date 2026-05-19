@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Heading" xml:space="preserve"><value>Przeciwwskazania</value></data>
+  <data name="Intro" xml:space="preserve"><value>Sprawdz przeciwwskazania dla przepisanych lekow.</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Odswiez</value></data>
+  <data name="LoadingContraIndications" xml:space="preserve"><value>Ladowanie przeciwwskazan...</value></data>
+  <data name="NoContraIndications" xml:space="preserve"><value>Nie ma jeszcze przepisanych lekow, dla ktorych mozna pokazac przeciwwskazania.</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Lek</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Substancja czynna</value></data>
+  <data name="PrescriptionDateColumn" xml:space="preserve"><value>Data recepty</value></data>
+  <data name="ContraIndicationsColumn" xml:space="preserve"><value>Przeciwwskazania</value></data>
+  <data name="NoFkInformation" xml:space="preserve"><value>Nie znaleziono informacji o przeciwwskazaniach w Farmacotherapeutisch Kompas.</value></data>
+  <data name="ContraIndicationsFetchFailed" xml:space="preserve"><value>Nie mozna bylo pobrac wszystkich przeciwwskazan.</value></data>
+</root>

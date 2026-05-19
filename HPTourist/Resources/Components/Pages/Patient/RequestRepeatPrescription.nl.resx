@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Herhaalrecept aanvragen</value></data>
+  <data name="Heading" xml:space="preserve"><value>Herhaalrecept aanvragen</value></data>
+  <data name="Intro" xml:space="preserve"><value>Selecteer de voorgeschreven medicatie waarvoor u opnieuw een recept nodig heeft.</value></data>
+  <data name="Back" xml:space="preserve"><value>Terug</value></data>
+  <data name="LoadingMedication" xml:space="preserve"><value>Medicatie wordt geladen...</value></data>
+  <data name="NoPrescribedMedication" xml:space="preserve"><value>Er staat nog geen voorgeschreven medicatie in uw dossier.</value></data>
+  <data name="RequestColumn" xml:space="preserve"><value>Aanvragen</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Medicatie</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Werkzame stof</value></data>
+  <data name="FormColumn" xml:space="preserve"><value>Vorm</value></data>
+  <data name="LastPrescriptionColumn" xml:space="preserve"><value>Laatste voorschrift</value></data>
+  <data name="RequestMedicineAriaLabel" xml:space="preserve"><value>Herhaalrecept aanvragen voor {0}</value></data>
+  <data name="Submitting" xml:space="preserve"><value>Aanvraag wordt verstuurd...</value></data>
+  <data name="Submit" xml:space="preserve"><value>Herhaalrecept aanvragen</value></data>
+  <data name="OneMedicineSelected" xml:space="preserve"><value>1 medicijn geselecteerd</value></data>
+  <data name="MultipleMedicinesSelected" xml:space="preserve"><value>{0} medicijnen geselecteerd</value></data>
+  <data name="RequestSubmitted" xml:space="preserve"><value>Uw herhaalrecept is aangevraagd en staat nu in behandeling.</value></data>
+</root>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Mijn medicatie</value></data>
+  <data name="Heading" xml:space="preserve"><value>Mijn medicatie</value></data>
+  <data name="Intro" xml:space="preserve"><value>Bekijk uw voorgeschreven medicatie en beheer medicatie die u zelf heeft toegevoegd.</value></data>
+  <data name="RequestRepeatPrescription" xml:space="preserve"><value>Herhaalrecept aanvragen</value></data>
+  <data name="AddMedication" xml:space="preserve"><value>Medicatie toevoegen</value></data>
+  <data name="LoadingMedication" xml:space="preserve"><value>Medicatie wordt geladen...</value></data>
+  <data name="PrescribedMedication" xml:space="preserve"><value>Voorgeschreven medicatie</value></data>
+  <data name="SelfAddedMedication" xml:space="preserve"><value>Zelf toegevoegde medicatie</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Medicatie</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Werkzame stof</value></data>
+  <data name="FormColumn" xml:space="preserve"><value>Vorm</value></data>
+  <data name="PrescriptionDateColumn" xml:space="preserve"><value>Voorschrijfdatum</value></data>
+  <data name="StatusColumn" xml:space="preserve"><value>Status</value></data>
+  <data name="DateColumn" xml:space="preserve"><value>Datum</value></data>
+  <data name="ActionsColumn" xml:space="preserve"><value>Acties</value></data>
+  <data name="NoPrescribedMedication" xml:space="preserve"><value>U heeft nog geen voorgeschreven medicatie.</value></data>
+  <data name="NoSelfAddedMedication" xml:space="preserve"><value>U heeft nog geen medicatie handmatig toegevoegd.</value></data>
+  <data name="MedicationActions" xml:space="preserve"><value>Medicatie acties</value></data>
+  <data name="Edit" xml:space="preserve"><value>Bewerken</value></data>
+  <data name="Delete" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="NotEditable" xml:space="preserve"><value>Niet wijzigbaar</value></data>
+  <data name="MedicationNotFound" xml:space="preserve"><value>Medicatie kon niet worden gevonden.</value></data>
+</root>

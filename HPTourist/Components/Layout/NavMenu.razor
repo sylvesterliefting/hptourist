@@ -1,90 +1,131 @@
 @inject IStringLocalizer<NavMenu> Localizer
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">HPTourist</a>
-    </div>
+<div class="mobile-shell d-lg-none d-flex align-items-center justify-content-between">
+    <a class="navbar-brand" href="">
+        <span class="brand-mark">HP</span>
+        <span>@Localizer["AppName"]</span>
+    </a>
+    <button class="btn btn-outline-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNavigation" aria-controls="mainNavigation">
+        <span class="bi bi-list" aria-hidden="true"></span>
+        <span class="visually-hidden">@Localizer["Navigation"]</span>
+    </button>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<div class="offcanvas-lg offcanvas-start sidebar-offcanvas" tabindex="-1" id="mainNavigation" aria-labelledby="mainNavigationLabel">
+    <div class="offcanvas-header">
+        <a class="navbar-brand" href="" id="mainNavigationLabel">
+            <span class="brand-mark">HP</span>
+            <span>@Localizer["AppName"]</span>
+        </a>
+        <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#mainNavigation" aria-label="@Localizer["CloseNavigation"]"></button>
+    </div>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill" aria-hidden="true"></span> @Localizer["Home"]
-            </NavLink>
-        </div>
+    <div class="offcanvas-body">
+        <div class="sidebar-content">
+            <div class="nav-section-label">@Localizer["Navigation"]</div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+            <nav class="nav nav-pills flex-column gap-1">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill" aria-hidden="true"></span>
+                    <span class="nav-label">@Localizer["Home"]</span>
+                </NavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-   
-        //TODO: remove hardcoded id and link to actual prescription request page
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="prescription-request/019db9a4-44ae-7ecb-b085-a0ccd8c6878a">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Prescription Request
-            </NavLink>
-        </div>
-
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="patient-information">
-                <span class="bi bi-clipboard-pulse" aria-hidden="true"></span> @Localizer["PatientInformation"]
-            </NavLink>
-        </div>
-
-
-        <AuthorizeView>
-            <Authorized Context="userContext">
                 <AuthorizeView Roles="Patient">
-                    <Authorized Context="patientContext">
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="patient/medication">
-                                <span class="bi bi-list-nested" aria-hidden="true"></span> @Localizer["Medication"]
-                            </NavLink>
-                        </div>
+                    <Authorized>
+                        <NavLink class="nav-link" href="patient/medication" Match="NavLinkMatch.All">
+                            <span class="bi bi-capsule" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["Medication"]</span>
+                        </NavLink>
+
+                        <NavLink class="nav-link" href="patient/medication/add" Match="NavLinkMatch.All">
+                            <span class="bi bi-plus-square-fill" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["AddMedication"]</span>
+                        </NavLink>
+
+                        <NavLink class="nav-link" href="patient/repeat-prescription/request" Match="NavLinkMatch.All">
+                            <span class="bi bi-arrow-repeat" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["RequestRepeatPrescription"]</span>
+                        </NavLink>
+
+                        <NavLink class="nav-link" href="patient-information" Match="NavLinkMatch.All">
+                            <span class="bi bi-clipboard-pulse" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["PatientInformation"]</span>
+                        </NavLink>
                     </Authorized>
                 </AuthorizeView>
 
-                <div class="nav-item px-3">
-                    <span class="nav-link">
-                        <span class="bi bi-person-fill" aria-hidden="true"></span>
-                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value
-                        @userContext.User.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value
-                    </span>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="logout">
-                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
+                <AuthorizeView Roles="Employee">
+                    <Authorized>
+                        <NavLink class="nav-link" href="prescription-requests" Match="NavLinkMatch.All">
+                            <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["PrescriptionRequests"]</span>
+                        </NavLink>
+                    </Authorized>
+                </AuthorizeView>
+
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <NavLink class="nav-link" href="login" Match="NavLinkMatch.All">
+                            <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["Login"]</span>
+                        </NavLink>
+
+                        <NavLink class="nav-link" href="register" Match="NavLinkMatch.All">
+                            <span class="bi bi-person-plus-fill" aria-hidden="true"></span>
+                            <span class="nav-label">@Localizer["Register"]</span>
+                        </NavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </nav>
+
+            <AuthorizeView>
+                <Authorized Context="userContext">
+                    <div class="account-card mt-4">
+                        <div class="account-avatar">
+                            <span class="bi bi-person-fill" aria-hidden="true"></span>
+                        </div>
+                        <div class="account-copy">
+                            <div class="account-name">@GetDisplayName(userContext.User)</div>
+                            <div class="account-role">@GetRoleLabel(userContext.User)</div>
+                        </div>
+                    </div>
+
+                    <NavLink class="nav-link mt-2" href="logout" Match="NavLinkMatch.All">
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span>
+                        <span class="nav-label">@Localizer["Logout"]</span>
                     </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="prescription-requests">
-                        <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span> Prescription requests
-                    </NavLink>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span>@Localizer["Login"]
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="register">
-                        <span class="bi bi-person-plus-fill" aria-hidden="true"></span>@Localizer["Register"]
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
+                </Authorized>
+            </AuthorizeView>
+
+            <div class="practice-card mt-3">
+                <div class="practice-eyebrow">@Localizer["Practice"]</div>
+                <div class="practice-name">@Localizer["PracticeName"]</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@code {
+    private string GetDisplayName(System.Security.Claims.ClaimsPrincipal user)
+    {
+        var firstName = user.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value;
+        var lastName = user.FindFirst(System.Security.Claims.ClaimTypes.Surname)?.Value;
+        var fullName = string.Join(' ', new[] { firstName, lastName }.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+        return string.IsNullOrWhiteSpace(fullName)
+            ? user.Identity?.Name ?? Localizer["RoleUnknown"]
+            : fullName;
+    }
+
+    private string GetRoleLabel(System.Security.Claims.ClaimsPrincipal user)
+    {
+        if (user.IsInRole("Patient"))
+        {
+            return Localizer["RolePatient"];
+        }
+
+        return user.IsInRole("Employee")
+            ? Localizer["RoleEmployee"]
+            : Localizer["RoleUnknown"];
+    }
+}

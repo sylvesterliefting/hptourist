@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Heading" xml:space="preserve"><value>Contra-indicaties</value></data>
+  <data name="Intro" xml:space="preserve"><value>Bekijk contra-indicaties van uw voorgeschreven medicatie.</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="LoadingContraIndications" xml:space="preserve"><value>Contra-indicaties worden geladen...</value></data>
+  <data name="NoContraIndications" xml:space="preserve"><value>Er is nog geen voorgeschreven medicatie waarvoor contra-indicaties kunnen worden getoond.</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Medicatie</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Werkzame stof</value></data>
+  <data name="PrescriptionDateColumn" xml:space="preserve"><value>Voorschrijfdatum</value></data>
+  <data name="ContraIndicationsColumn" xml:space="preserve"><value>Contra-indicaties</value></data>
+  <data name="NoFkInformation" xml:space="preserve"><value>Geen contra-indicatie-informatie gevonden in het Farmacotherapeutisch Kompas.</value></data>
+  <data name="ContraIndicationsFetchFailed" xml:space="preserve"><value>Niet alle contra-indicaties konden worden opgehaald.</value></data>
+</root>

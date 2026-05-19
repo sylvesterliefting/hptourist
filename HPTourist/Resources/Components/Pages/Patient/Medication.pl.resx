@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Moje leki</value></data>
+  <data name="Heading" xml:space="preserve"><value>Moje leki</value></data>
+  <data name="Intro" xml:space="preserve"><value>Przegladaj przepisane leki i zarzadzaj lekami dodanymi samodzielnie.</value></data>
+  <data name="RequestRepeatPrescription" xml:space="preserve"><value>Popros o recepte</value></data>
+  <data name="AddMedication" xml:space="preserve"><value>Dodaj lek</value></data>
+  <data name="LoadingMedication" xml:space="preserve"><value>Ladowanie lekow...</value></data>
+  <data name="PrescribedMedication" xml:space="preserve"><value>Przepisane leki</value></data>
+  <data name="SelfAddedMedication" xml:space="preserve"><value>Leki dodane samodzielnie</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Lek</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Substancja czynna</value></data>
+  <data name="FormColumn" xml:space="preserve"><value>Forma</value></data>
+  <data name="PrescriptionDateColumn" xml:space="preserve"><value>Data recepty</value></data>
+  <data name="StatusColumn" xml:space="preserve"><value>Status</value></data>
+  <data name="DateColumn" xml:space="preserve"><value>Data</value></data>
+  <data name="ActionsColumn" xml:space="preserve"><value>Akcje</value></data>
+  <data name="NoPrescribedMedication" xml:space="preserve"><value>Nie masz jeszcze przepisanych lekow.</value></data>
+  <data name="NoSelfAddedMedication" xml:space="preserve"><value>Nie dodano jeszcze zadnych lekow recznie.</value></data>
+  <data name="MedicationActions" xml:space="preserve"><value>Akcje leku</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edytuj</value></data>
+  <data name="Delete" xml:space="preserve"><value>Usun</value></data>
+  <data name="NotEditable" xml:space="preserve"><value>Nie mozna edytowac</value></data>
+  <data name="MedicationNotFound" xml:space="preserve"><value>Nie znaleziono leku.</value></data>
+</root>

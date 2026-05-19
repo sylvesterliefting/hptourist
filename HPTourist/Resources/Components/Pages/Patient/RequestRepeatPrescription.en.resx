@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Request repeat prescription</value></data>
+  <data name="Heading" xml:space="preserve"><value>Request repeat prescription</value></data>
+  <data name="Intro" xml:space="preserve"><value>Select the prescribed medication for which you need a new prescription.</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="LoadingMedication" xml:space="preserve"><value>Loading medication...</value></data>
+  <data name="NoPrescribedMedication" xml:space="preserve"><value>There is no prescribed medication in your record yet.</value></data>
+  <data name="RequestColumn" xml:space="preserve"><value>Request</value></data>
+  <data name="MedicationColumn" xml:space="preserve"><value>Medication</value></data>
+  <data name="ActiveSubstanceColumn" xml:space="preserve"><value>Active substance</value></data>
+  <data name="FormColumn" xml:space="preserve"><value>Form</value></data>
+  <data name="LastPrescriptionColumn" xml:space="preserve"><value>Last prescription</value></data>
+  <data name="RequestMedicineAriaLabel" xml:space="preserve"><value>Request repeat prescription for {0}</value></data>
+  <data name="Submitting" xml:space="preserve"><value>Submitting request...</value></data>
+  <data name="Submit" xml:space="preserve"><value>Request repeat prescription</value></data>
+  <data name="OneMedicineSelected" xml:space="preserve"><value>1 medicine selected</value></data>
+  <data name="MultipleMedicinesSelected" xml:space="preserve"><value>{0} medicines selected</value></data>
+  <data name="RequestSubmitted" xml:space="preserve"><value>Your repeat prescription request has been submitted and is pending review.</value></data>
+</root>

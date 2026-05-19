@@ -1,75 +1,68 @@
 @page "/patient/medication/edit/{MedicineId:guid}"
 @attribute [Authorize(Roles = "Patient")]
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
-@using System.Security.Claims
-@inject DatabaseContext DbContext
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IPatientMedicationService PatientMedications
+@inject ICurrentPatientService CurrentPatient
 @inject NavigationManager Navigation
-@inject IFarmacotherapeutischKompasUrlService FkUrlService
-@inject IJSRuntime JS
+@inject IStringLocalizer<EditMedication> Localizer
 
-<PageTitle>Medicatie bewerken</PageTitle>
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
 
-<h1>Medicatie bewerken</h1>
+<h1>@Localizer["Heading"]</h1>
+<p class="text-muted">@Localizer["Intro"]</p>
 
 @if (isLoading)
 {
-    <p>Medicatie wordt geladen...</p>
+    <p>@Localizer["LoadingMedication"]</p>
 }
 else if (!string.IsNullOrWhiteSpace(errorMessage))
 {
     <div class="alert alert-danger" role="alert">@errorMessage</div>
-    <a href="/patient/medication" class="btn btn-secondary">Terug naar medicatie</a>
+    <a href="/patient/medication" class="btn btn-secondary">@Localizer["BackToMedication"]</a>
 }
 else
 {
-    <EditForm Model="medicineForm" OnValidSubmit="HandleValidSubmitAsync">
+    <EditForm Model="medicationForm" OnValidSubmit="HandleValidSubmitAsync">
         <DataAnnotationsValidator />
         <ValidationSummary class="text-danger" />
 
         <div class="mb-3">
-            <label for="name" class="form-label">Medicatienaam</label>
-            <InputText id="name" class="form-control" @bind-Value="medicineForm.Name" />
-            <ValidationMessage For="() => medicineForm.Name" class="text-danger" />
+            <label for="name" class="form-label">@Localizer["MedicationName"]</label>
+            <InputText id="name" class="form-control" @bind-Value="medicationForm.Name" autocomplete="off" />
+            <ValidationMessage For="() => medicationForm.Name" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="activeSubstance" class="form-label">Werkzame stof</label>
-            <div class="input-group">
-                <InputText id="activeSubstance" class="form-control" @bind-Value="medicineForm.ActiveSubstance" />
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    @onclick="OpenFarmacotherapeutischKompasAsync"
-                    disabled="@string.IsNullOrWhiteSpace(medicineForm.ActiveSubstance)">
-                    Farmacotherapeutisch Kompas
-                </button>
-            </div>
-            <ValidationMessage For="() => medicineForm.ActiveSubstance" class="text-danger" />
+            <label for="active-substance" class="form-label">@Localizer["ActiveSubstance"]</label>
+            <InputText id="active-substance" class="form-control" @bind-Value="medicationForm.ActiveSubstance" autocomplete="off" />
+            <ValidationMessage For="() => medicationForm.ActiveSubstance" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="atcCode" class="form-label">ATC-code (optioneel)</label>
-            <InputText id="atcCode" class="form-control" @bind-Value="medicineForm.AtcCode" />
-            <ValidationMessage For="() => medicineForm.AtcCode" class="text-danger" />
+            <label for="atc-code" class="form-label">@Localizer["AtcCode"]</label>
+            <InputText id="atc-code" class="form-control" @bind-Value="medicationForm.AtcCode" autocomplete="off" />
+            <ValidationMessage For="() => medicationForm.AtcCode" class="text-danger" />
         </div>
 
         <div class="mb-3">
-            <label for="pharmaceuticalForm" class="form-label">Farmaceutische vorm</label>
-            <InputSelect id="pharmaceuticalForm" class="form-select" @bind-Value="medicineForm.PharmaceuticalForm">
-                <option value="">Selecteer vorm...</option>
-                @foreach (var form in PharmaceuticalForms)
-                {
-                    <option value="@form">@form</option>
-                }
+            <label for="pharmaceutical-form" class="form-label">@Localizer["PharmaceuticalForm"]</label>
+            <InputSelect id="pharmaceutical-form" class="form-select" @bind-Value="medicationForm.PharmaceuticalForm">
+                <option value="">@Localizer["ChooseForm"]</option>
+                <option value="Tablet">@Localizer["FormTablet"]</option>
+                <option value="Capsule">@Localizer["FormCapsule"]</option>
+                <option value="Drank">@Localizer["FormLiquid"]</option>
+                <option value="Injectie">@Localizer["FormInjection"]</option>
+                <option value="Zalf">@Localizer["FormOintment"]</option>
+                <option value="Druppels">@Localizer["FormDrops"]</option>
+                <option value="Inhalatie">@Localizer["FormInhalation"]</option>
+                <option value="Anders">@Localizer["FormOther"]</option>
             </InputSelect>
-            <ValidationMessage For="() => medicineForm.PharmaceuticalForm" class="text-danger" />
+            <ValidationMessage For="() => medicationForm.PharmaceuticalForm" class="text-danger" />
         </div>
 
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Opslaan</button>
-            <a href="/patient/medication" class="btn btn-secondary">Annuleren</a>
+            <button type="submit" class="btn btn-primary">@Localizer["Save"]</button>
+            <a href="/patient/medication" class="btn btn-secondary">@Localizer["Cancel"]</a>
         </div>
     </EditForm>
 }
@@ -78,120 +71,53 @@ else
     [Parameter]
     public Guid MedicineId { get; set; }
 
-    private static readonly string[] PharmaceuticalForms =
-    [
-        "Tablet",
-        "Capsule",
-        "Injectie",
-        "Inhalator",
-        "Zalf",
-        "Drank",
-        "Druppels",
-        "Pleister",
-        "Zetpil",
-        "Overige"
-    ];
-
-    private MedicineForm medicineForm = new();
-    private Guid? prescriptionRequestId;
+    private MedicineForm medicationForm = new();
     private bool isLoading = true;
     private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        var patientId = await GetCurrentPatientIdAsync();
+        var patientId = await CurrentPatient.GetPatientIdAsync();
         if (patientId is null)
         {
             Navigation.NavigateTo("/login", forceLoad: true);
             return;
         }
 
-        var request = await DbContext.PrescriptionRequests
-            .AsNoTracking()
-            .Include(r => r.Medicines)
-            .Where(r => r.PatientId == patientId.Value)
-            .SingleOrDefaultAsync(r => r.Medicines.Any(m => m.Id == MedicineId));
-
-        if (request is null)
+        var medication = await PatientMedications.GetMedicationAsync(patientId.Value, MedicineId);
+        if (medication is null)
         {
-            errorMessage = "Medicatie kon niet worden gevonden.";
+            errorMessage = Localizer["MedicationNotFound"];
             isLoading = false;
             return;
         }
 
-        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
+        medicationForm = new MedicineForm
         {
-            errorMessage = "Alleen medicatie die nog in behandeling is kan worden aangepast.";
-            isLoading = false;
-            return;
-        }
-
-        var medicine = request.Medicines.Single(m => m.Id == MedicineId);
-        prescriptionRequestId = request.Id;
-        medicineForm = new MedicineForm
-        {
-            Name = medicine.Name,
-            ActiveSubstance = medicine.ActiveSubstance,
-            AtcCode = medicine.AtcCode,
-            PharmaceuticalForm = medicine.PharmaceuticalForm,
+            Name = medication.Name,
+            ActiveSubstance = medication.ActiveSubstance,
+            AtcCode = medication.AtcCode,
+            PharmaceuticalForm = medication.PharmaceuticalForm,
         };
         isLoading = false;
     }
 
     private async Task HandleValidSubmitAsync()
     {
-        var patientId = await GetCurrentPatientIdAsync();
+        var patientId = await CurrentPatient.GetPatientIdAsync();
         if (patientId is null)
         {
             Navigation.NavigateTo("/login", forceLoad: true);
             return;
         }
 
-        var request = await DbContext.PrescriptionRequests
-            .Include(r => r.Medicines)
-            .Where(r => r.PatientId == patientId.Value)
-            .SingleOrDefaultAsync(r => r.Id == prescriptionRequestId && r.Medicines.Any(m => m.Id == MedicineId));
-
-        if (request is null)
+        var result = await PatientMedications.UpdateMedicationAsync(patientId.Value, MedicineId, medicationForm);
+        if (!result.Success)
         {
-            errorMessage = "Medicatie kon niet worden gevonden.";
+            errorMessage = result.ErrorMessage ?? Localizer["MedicationNotFound"];
             return;
         }
 
-        if (request.RequestStatus != PrescriptionRequest.Status.Pending)
-        {
-            errorMessage = "Alleen medicatie die nog in behandeling is kan worden aangepast.";
-            return;
-        }
-
-        var medicine = request.Medicines.Single(m => m.Id == MedicineId);
-        medicine.Name = medicineForm.Name.Trim();
-        medicine.ActiveSubstance = medicineForm.ActiveSubstance.Trim();
-        medicine.AtcCode = medicineForm.AtcCode?.Trim() ?? string.Empty;
-        medicine.PharmaceuticalForm = medicineForm.PharmaceuticalForm.Trim();
-
-        await DbContext.SaveChangesAsync();
         Navigation.NavigateTo("/patient/medication");
-    }
-
-    private async Task OpenFarmacotherapeutischKompasAsync()
-    {
-        if (string.IsNullOrWhiteSpace(medicineForm.ActiveSubstance))
-        {
-            return;
-        }
-
-        var url = FkUrlService.CreatePreparationtextUrl(medicineForm.ActiveSubstance);
-        await JS.InvokeVoidAsync("open", url, "_blank");
-    }
-
-    private async Task<Guid?> GetCurrentPatientIdAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var patientIdValue = authState.User.FindFirstValue("PatientId");
-
-        return Guid.TryParse(patientIdValue, out var patientId)
-            ? patientId
-            : null;
     }
 }

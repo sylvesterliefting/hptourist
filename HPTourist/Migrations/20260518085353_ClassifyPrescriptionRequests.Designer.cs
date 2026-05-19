@@ -3,6 +3,7 @@ using System;
 using HPTourist.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HPTourist.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260518085353_ClassifyPrescriptionRequests")]
+    partial class ClassifyPrescriptionRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -245,47 +248,6 @@ namespace HPTourist.Migrations
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("HPTourist.Data.Models.PatientMedication", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ActiveSubstance")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("AtcCode")
-                        .IsRequired()
-                        .HasMaxLength(7)
-                        .HasColumnType("character varying(7)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PharmaceuticalForm")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("PatientMedications");
-                });
-
             modelBuilder.Entity("HPTourist.Data.Models.Practice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -488,17 +450,6 @@ namespace HPTourist.Migrations
                     b.Navigation("PreferredLanguage");
                 });
 
-            modelBuilder.Entity("HPTourist.Data.Models.PatientMedication", b =>
-                {
-                    b.HasOne("HPTourist.Data.Models.Patient", "Patient")
-                        .WithMany("PatientMedications")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("HPTourist.Data.Models.Prescription", b =>
                 {
                     b.HasOne("HPTourist.Data.Models.Employee", "Employee")
@@ -564,8 +515,6 @@ namespace HPTourist.Migrations
                     b.Navigation("Allergies");
 
                     b.Navigation("Identification");
-
-                    b.Navigation("PatientMedications");
 
                     b.Navigation("PrescriptionRequests");
 

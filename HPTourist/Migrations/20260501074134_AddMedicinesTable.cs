@@ -10,99 +10,43 @@ namespace HPTourist.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Medicine_PrescriptionRequests_PrescriptionRequestId",
-                table: "Medicine");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Medicine_Prescriptions_PrescriptionId",
-                table: "Medicine");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Medicine",
-                table: "Medicine");
-
-            migrationBuilder.RenameTable(
-                name: "Medicine",
-                newName: "Medicines");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Medicine_PrescriptionRequestId",
-                table: "Medicines",
-                newName: "IX_Medicines_PrescriptionRequestId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Medicine_PrescriptionId",
-                table: "Medicines",
-                newName: "IX_Medicines_PrescriptionId");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Medicines",
-                table: "Medicines",
-                column: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Medicines_PrescriptionRequests_PrescriptionRequestId",
-                table: "Medicines",
-                column: "PrescriptionRequestId",
-                principalTable: "PrescriptionRequests",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Medicines_Prescriptions_PrescriptionId",
-                table: "Medicines",
-                column: "PrescriptionId",
-                principalTable: "Prescriptions",
-                principalColumn: "Id");
+            migrationBuilder.Sql("""
+                DO $$
+                BEGIN
+                    IF to_regclass('"Medicine"') IS NOT NULL AND to_regclass('"Medicines"') IS NULL THEN
+                        ALTER TABLE "Medicine" DROP CONSTRAINT IF EXISTS "FK_Medicine_PrescriptionRequests_PrescriptionRequestId";
+                        ALTER TABLE "Medicine" DROP CONSTRAINT IF EXISTS "FK_Medicine_Prescriptions_PrescriptionId";
+                        ALTER TABLE "Medicine" DROP CONSTRAINT IF EXISTS "PK_Medicine";
+                        ALTER TABLE "Medicine" RENAME TO "Medicines";
+                        ALTER INDEX IF EXISTS "IX_Medicine_PrescriptionRequestId" RENAME TO "IX_Medicines_PrescriptionRequestId";
+                        ALTER INDEX IF EXISTS "IX_Medicine_PrescriptionId" RENAME TO "IX_Medicines_PrescriptionId";
+                        ALTER TABLE "Medicines" ADD CONSTRAINT "PK_Medicines" PRIMARY KEY ("Id");
+                        ALTER TABLE "Medicines" ADD CONSTRAINT "FK_Medicines_PrescriptionRequests_PrescriptionRequestId" FOREIGN KEY ("PrescriptionRequestId") REFERENCES "PrescriptionRequests" ("Id");
+                        ALTER TABLE "Medicines" ADD CONSTRAINT "FK_Medicines_Prescriptions_PrescriptionId" FOREIGN KEY ("PrescriptionId") REFERENCES "Prescriptions" ("Id");
+                    END IF;
+                END $$;
+                """);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Medicines_PrescriptionRequests_PrescriptionRequestId",
-                table: "Medicines");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Medicines_Prescriptions_PrescriptionId",
-                table: "Medicines");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Medicines",
-                table: "Medicines");
-
-            migrationBuilder.RenameTable(
-                name: "Medicines",
-                newName: "Medicine");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Medicines_PrescriptionRequestId",
-                table: "Medicine",
-                newName: "IX_Medicine_PrescriptionRequestId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Medicines_PrescriptionId",
-                table: "Medicine",
-                newName: "IX_Medicine_PrescriptionId");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Medicine",
-                table: "Medicine",
-                column: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Medicine_PrescriptionRequests_PrescriptionRequestId",
-                table: "Medicine",
-                column: "PrescriptionRequestId",
-                principalTable: "PrescriptionRequests",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Medicine_Prescriptions_PrescriptionId",
-                table: "Medicine",
-                column: "PrescriptionId",
-                principalTable: "Prescriptions",
-                principalColumn: "Id");
+            migrationBuilder.Sql("""
+                DO $$
+                BEGIN
+                    IF to_regclass('"Medicines"') IS NOT NULL AND to_regclass('"Medicine"') IS NULL THEN
+                        ALTER TABLE "Medicines" DROP CONSTRAINT IF EXISTS "FK_Medicines_PrescriptionRequests_PrescriptionRequestId";
+                        ALTER TABLE "Medicines" DROP CONSTRAINT IF EXISTS "FK_Medicines_Prescriptions_PrescriptionId";
+                        ALTER TABLE "Medicines" DROP CONSTRAINT IF EXISTS "PK_Medicines";
+                        ALTER TABLE "Medicines" RENAME TO "Medicine";
+                        ALTER INDEX IF EXISTS "IX_Medicines_PrescriptionRequestId" RENAME TO "IX_Medicine_PrescriptionRequestId";
+                        ALTER INDEX IF EXISTS "IX_Medicines_PrescriptionId" RENAME TO "IX_Medicine_PrescriptionId";
+                        ALTER TABLE "Medicine" ADD CONSTRAINT "PK_Medicine" PRIMARY KEY ("Id");
+                        ALTER TABLE "Medicine" ADD CONSTRAINT "FK_Medicine_PrescriptionRequests_PrescriptionRequestId" FOREIGN KEY ("PrescriptionRequestId") REFERENCES "PrescriptionRequests" ("Id");
+                        ALTER TABLE "Medicine" ADD CONSTRAINT "FK_Medicine_Prescriptions_PrescriptionId" FOREIGN KEY ("PrescriptionId") REFERENCES "Prescriptions" ("Id");
+                    END IF;
+                END $$;
+                """);
         }
     }
 }

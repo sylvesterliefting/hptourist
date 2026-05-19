@@ -120,6 +120,30 @@
   <data name="Home" xml:space="preserve">
     <value>Home</value>
   </data>
+  <data name="AppName" xml:space="preserve">
+    <value>HPTourist</value>
+  </data>
+  <data name="CloseNavigation" xml:space="preserve">
+    <value>Close navigation</value>
+  </data>
+  <data name="Navigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="Practice" xml:space="preserve">
+    <value>Practice</value>
+  </data>
+  <data name="PracticeName" xml:space="preserve">
+    <value>Tourist Doctor Amsterdam</value>
+  </data>
+  <data name="RolePatient" xml:space="preserve">
+    <value>Patient</value>
+  </data>
+  <data name="RoleEmployee" xml:space="preserve">
+    <value>General practitioner</value>
+  </data>
+  <data name="RoleUnknown" xml:space="preserve">
+    <value>User</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>
@@ -127,7 +151,19 @@
     <value>Register</value>
   </data>
   <data name="Medication" xml:space="preserve">
-    <value>Medication</value>
+    <value>My medication</value>
+  </data>
+  <data name="AddMedication" xml:space="preserve">
+    <value>Add medication</value>
+  </data>
+  <data name="RequestRepeatPrescription" xml:space="preserve">
+    <value>Repeat prescription</value>
+  </data>
+  <data name="PrescriptionRequests" xml:space="preserve">
+    <value>Prescription requests</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
   </data>
   <data name="PatientInformation" xml:space="preserve">
     <value>Patient Information</value>

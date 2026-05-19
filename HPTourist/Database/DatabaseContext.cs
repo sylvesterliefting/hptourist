@@ -13,6 +13,7 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
     public DbSet<Identification> Identificatios => Set<Identification>();
     public DbSet<EHIC> EHICs => Set<EHIC>();
     public DbSet<Medicine> Medicines => Set<Medicine>();
+    public DbSet<PatientMedication> PatientMedications => Set<PatientMedication>();
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<PrescriptionRequest> PrescriptionRequests => Set<PrescriptionRequest>();
     public DbSet<Allergy> Allergies => Set<Allergy>();
@@ -62,6 +63,20 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
             entity.HasMany(p => p.Allergies)
                 .WithOne()
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(p => p.PatientMedications)
+                .WithOne(m => m.Patient)
+                .HasForeignKey(m => m.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PatientMedication>(entity =>
+        {
+            entity.Property(m => m.Name).IsRequired().HasMaxLength(100);
+            entity.Property(m => m.AtcCode).HasMaxLength(7);
+            entity.Property(m => m.ActiveSubstance).IsRequired().HasMaxLength(100);
+            entity.Property(m => m.PharmaceuticalForm).IsRequired().HasMaxLength(50);
+            entity.Property(m => m.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
         });
 
 
@@ -81,6 +96,9 @@ public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbCont
 
         modelBuilder.Entity<PrescriptionRequest>(entity =>
         {
+            entity.Property(r => r.Type)
+                .HasDefaultValue(PrescriptionRequest.RequestType.RepeatPrescription);
+
             entity.HasMany(r => r.Medicines)
                 .WithOne()
                 .HasForeignKey("PrescriptionRequestId");

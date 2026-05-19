@@ -120,6 +120,30 @@
   <data name="Home" xml:space="preserve">
     <value>Home</value>
   </data>
+  <data name="AppName" xml:space="preserve">
+    <value>HPTourist</value>
+  </data>
+  <data name="CloseNavigation" xml:space="preserve">
+    <value>Zamknij nawigacje</value>
+  </data>
+  <data name="Navigation" xml:space="preserve">
+    <value>Nawigacja</value>
+  </data>
+  <data name="Practice" xml:space="preserve">
+    <value>Przychodnia</value>
+  </data>
+  <data name="PracticeName" xml:space="preserve">
+    <value>Przychodnia Tourist Doctor Amsterdam</value>
+  </data>
+  <data name="RolePatient" xml:space="preserve">
+    <value>Pacjent</value>
+  </data>
+  <data name="RoleEmployee" xml:space="preserve">
+    <value>Lekarz rodzinny</value>
+  </data>
+  <data name="RoleUnknown" xml:space="preserve">
+    <value>Uzytkownik</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Login</value>
   </data>
@@ -127,7 +151,19 @@
     <value>Rejestr</value>
   </data>
   <data name="Medication" xml:space="preserve">
-    <value>Leki</value>
+    <value>Moje leki</value>
+  </data>
+  <data name="AddMedication" xml:space="preserve">
+    <value>Dodaj lek</value>
+  </data>
+  <data name="RequestRepeatPrescription" xml:space="preserve">
+    <value>Recepta odnawialna</value>
+  </data>
+  <data name="PrescriptionRequests" xml:space="preserve">
+    <value>Wnioski o recepte</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Wyloguj</value>
   </data>
   <data name="PatientInformation" xml:space="preserve">
     <value>Informacje o Pacjencie</value>

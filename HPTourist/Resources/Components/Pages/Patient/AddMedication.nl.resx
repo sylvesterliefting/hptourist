@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Medicatie toevoegen</value></data>
+  <data name="Heading" xml:space="preserve"><value>Medicatie toevoegen</value></data>
+  <data name="Intro" xml:space="preserve"><value>Voeg medicatie toe die u gebruikt, zodat uw medicatieoverzicht compleet blijft.</value></data>
+  <data name="MedicationName" xml:space="preserve"><value>Medicatienaam</value></data>
+  <data name="ActiveSubstance" xml:space="preserve"><value>Werkzame stof</value></data>
+  <data name="AtcCode" xml:space="preserve"><value>ATC-code</value></data>
+  <data name="PharmaceuticalForm" xml:space="preserve"><value>Farmaceutische vorm</value></data>
+  <data name="ChooseForm" xml:space="preserve"><value>Kies een vorm</value></data>
+  <data name="FormTablet" xml:space="preserve"><value>Tablet</value></data>
+  <data name="FormCapsule" xml:space="preserve"><value>Capsule</value></data>
+  <data name="FormLiquid" xml:space="preserve"><value>Drank</value></data>
+  <data name="FormInjection" xml:space="preserve"><value>Injectie</value></data>
+  <data name="FormOintment" xml:space="preserve"><value>Zalf</value></data>
+  <data name="FormDrops" xml:space="preserve"><value>Druppels</value></data>
+  <data name="FormInhalation" xml:space="preserve"><value>Inhalatie</value></data>
+  <data name="FormOther" xml:space="preserve"><value>Anders</value></data>
+  <data name="Save" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="PatientNotFound" xml:space="preserve"><value>Patient kon niet worden gevonden.</value></data>
+</root>

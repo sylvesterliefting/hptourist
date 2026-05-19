@@ -1,0 +1,165 @@
+@page "/patient/repeat-prescription/request"
+@attribute [Authorize(Roles = "Patient")]
+@rendermode InteractiveServer
+@inject IRepeatPrescriptionRequestService RepeatPrescriptionRequests
+@inject ICurrentPatientService CurrentPatient
+@inject NavigationManager Navigation
+@inject IStringLocalizer<RequestRepeatPrescription> Localizer
+
+<PageTitle>@Localizer["PageTitle"]</PageTitle>
+
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">@Localizer["Heading"]</h1>
+        <p class="text-muted mb-0">@Localizer["Intro"]</p>
+    </div>
+    <a href="/patient/medication" class="btn btn-outline-secondary">@Localizer["Back"]</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+@if (isLoading)
+{
+    <p>@Localizer["LoadingMedication"]</p>
+}
+else if (medicineOptions.Count == 0)
+{
+    <div class="alert alert-info" role="status">
+        @Localizer["NoPrescribedMedication"]
+    </div>
+}
+else
+{
+    <EditForm Model="requestForm" OnValidSubmit="SubmitAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
+
+        <div class="table-responsive mb-3">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-center">@Localizer["RequestColumn"]</th>
+                        <th scope="col">@Localizer["MedicationColumn"]</th>
+                        <th scope="col">@Localizer["ActiveSubstanceColumn"]</th>
+                        <th scope="col">@Localizer["FormColumn"]</th>
+                        <th scope="col">ATC-code</th>
+                        <th scope="col">@Localizer["LastPrescriptionColumn"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var medicine in medicineOptions)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       aria-label="@string.Format(Localizer["RequestMedicineAriaLabel"], medicine.Name)"
+                                       checked="@requestForm.MedicineIds.Contains(medicine.MedicineId)"
+                                       @onchange="eventArgs => ToggleMedicine(medicine.MedicineId, eventArgs)" />
+                            </td>
+                            <td>@medicine.Name</td>
+                            <td>@medicine.ActiveSubstance</td>
+                            <td>@medicine.PharmaceuticalForm</td>
+                            <td>@FormatAtcCode(medicine.AtcCode)</td>
+                            <td>@medicine.PrescribedAt.ToString("dd-MM-yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                @(isSubmitting ? Localizer["Submitting"] : Localizer["Submit"])
+            </button>
+            <span class="text-muted">@SelectedMedicineCountText</span>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private readonly RepeatPrescriptionRequestForm requestForm = new();
+    private IReadOnlyList<RepeatPrescriptionMedicineOption> medicineOptions = [];
+    private bool isLoading = true;
+    private bool isSubmitting;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private string SelectedMedicineCountText =>
+        requestForm.MedicineIds.Count == 1
+            ? Localizer["OneMedicineSelected"]
+            : string.Format(Localizer["MultipleMedicinesSelected"], requestForm.MedicineIds.Count);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMedicineOptionsAsync();
+    }
+
+    private async Task LoadMedicineOptionsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        var patientId = await CurrentPatient.GetPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        medicineOptions = await RepeatPrescriptionRequests.GetMedicineOptionsAsync(patientId.Value);
+        isLoading = false;
+    }
+
+    private async Task SubmitAsync()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+
+        var patientId = await CurrentPatient.GetPatientIdAsync();
+        if (patientId is null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        var result = await RepeatPrescriptionRequests.CreateRequestAsync(patientId.Value, requestForm.MedicineIds);
+        if (!result.Success)
+        {
+            errorMessage = result.ErrorMessage;
+            isSubmitting = false;
+            return;
+        }
+
+        requestForm.MedicineIds.Clear();
+        successMessage = Localizer["RequestSubmitted"];
+        isSubmitting = false;
+    }
+
+    private void ToggleMedicine(Guid medicineId, ChangeEventArgs eventArgs)
+    {
+        var isSelected = eventArgs.Value is bool value && value;
+
+        if (isSelected)
+        {
+            requestForm.MedicineIds.Add(medicineId);
+            return;
+        }
+
+        requestForm.MedicineIds.Remove(medicineId);
+    }
+
+    private static string FormatAtcCode(string atcCode)
+    {
+        return string.IsNullOrWhiteSpace(atcCode) ? "-" : atcCode;
+    }
+}

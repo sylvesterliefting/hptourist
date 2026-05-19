@@ -1,0 +1,134 @@
+@page "/prescription-requests"
+@attribute [Authorize(Roles = "Employee")]
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@inject DatabaseContext DbContext
+
+<PageTitle>Receptaanvragen</PageTitle>
+
+<div class="mb-4">
+    <h1 class="mb-1">Receptaanvragen</h1>
+    <p class="text-muted mb-0">Beoordeel herhaalrecepten en medicatie die door patienten is doorgegeven.</p>
+</div>
+
+@if (isLoading)
+{
+    <p>Aanvragen worden geladen...</p>
+}
+else
+{
+    <section class="mb-5">
+        <h2 class="h4">Herhaalrecepten</h2>
+        <p class="text-muted">Aanvragen voor medicatie die al in het patientdossier staat.</p>
+        @if (repeatPrescriptionRequests.Count == 0)
+        {
+            <p class="text-muted">Er zijn geen herhaalrecepten in behandeling.</p>
+        }
+        else
+        {
+            @RequestTable(repeatPrescriptionRequests)
+        }
+    </section>
+
+    <section>
+        <h2 class="h4">Doorgegeven medicatie</h2>
+        <p class="text-muted">Medicatie die een patient gebruikt, maar die nog medisch beoordeeld moet worden.</p>
+        @if (reportedMedicationRequests.Count == 0)
+        {
+            <p class="text-muted">Er is geen doorgegeven medicatie in behandeling.</p>
+        }
+        else
+        {
+            @RequestTable(reportedMedicationRequests)
+        }
+    </section>
+}
+
+@code {
+    private static RenderFragment RequestTable(IReadOnlyList<PrescriptionRequest> requests) => @<div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Medicatie</th>
+                    <th>Datum</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in requests)
+                {
+                    <tr>
+                        <td>@PatientName(request.Patient)</td>
+                        <td>@MedicineNames(request)</td>
+                        <td>@request.Date.ToString("dd-MM-yyyy")</td>
+                        <td>
+                            <span class="badge bg-@StatusColor(request.RequestStatus)">
+                                @StatusText(request.RequestStatus)
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>;
+}
+
+@code {
+    private bool isLoading = true;
+    private List<PrescriptionRequest> repeatPrescriptionRequests = [];
+    private List<PrescriptionRequest> reportedMedicationRequests = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var requests = await DbContext.PrescriptionRequests
+            .AsNoTracking()
+            .Include(request => request.Patient)
+            .Include(request => request.Medicines)
+            .OrderByDescending(request => request.Date)
+            .ToListAsync();
+
+        repeatPrescriptionRequests = requests
+            .Where(request => request.Type == PrescriptionRequest.RequestType.RepeatPrescription)
+            .ToList();
+
+        reportedMedicationRequests = requests
+            .Where(request => request.Type == PrescriptionRequest.RequestType.PatientReportedMedication)
+            .ToList();
+
+        isLoading = false;
+    }
+
+    private static string PatientName(Patient patient)
+    {
+        return $"{patient.FirstName} {patient.LastName}".Trim();
+    }
+
+    private static string MedicineNames(PrescriptionRequest request)
+    {
+        return string.Join(", ", request.Medicines.Select(medicine => medicine.Name));
+    }
+
+    private static string StatusText(PrescriptionRequest.Status status)
+    {
+        return status switch
+        {
+            PrescriptionRequest.Status.Pending => "In behandeling",
+            PrescriptionRequest.Status.Processed => "Goedgekeurd",
+            PrescriptionRequest.Status.Rejected => "Afgewezen",
+            _ => "Onbekend",
+        };
+    }
+
+    private static string StatusColor(PrescriptionRequest.Status status)
+    {
+        return status switch
+        {
+            PrescriptionRequest.Status.Pending => "warning",
+            PrescriptionRequest.Status.Processed => "success",
+            PrescriptionRequest.Status.Rejected => "danger",
+            _ => "secondary",
+        };
+    }
+
+}
