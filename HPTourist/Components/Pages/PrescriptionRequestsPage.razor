@@ -2,4 +2,9 @@
 @inject IStringLocalizer<PrescriptionRequestsPage> Localizer
 
 <h3>@Localizer["PrescriptionRequests"]</h3>
-<PrescriptionRequests />
+<PrescriptionRequests PageNumber="@PageNumber" PageParameterName="page" />
+
+@code {
+    [SupplyParameterFromQuery(Name = "page")]
+    public int PageNumber { get; set; }
+}

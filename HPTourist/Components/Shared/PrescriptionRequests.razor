@@ -15,7 +15,7 @@
     {
         @foreach (PrescriptionRequest prescriptionRequest in prescriptionRequests)
         {
-            <a class="card" href="#">
+            <a class="card" href="@("/prescription-request/" + prescriptionRequest.Id)">
                 <div class="card-body">
                     <div>
                         <b>@Localizer["Patient"]:</b> @prescriptionRequest.Patient.FirstName
@@ -28,5 +28,58 @@
                 </div>
             </a>
         }
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (PageNumber > 0)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@GetPrescriptionRequestPage(GetPreviousPageNumber()).Url">
+                            <span>&laquo;</span>
+                        </a>
+                    </li>
+
+                    if (GetPreviousPageNumber() != 0)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@GetPrescriptionRequestPage(0).Url">
+                                1
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item">
+                        <a class="page-link" href="@GetPrescriptionRequestPage(GetPreviousPageNumber()).Url">
+                            @(GetPrescriptionRequestPage(0).Number + 1)
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">@(PageNumber + 1)</a></li>
+
+                @if (PageNumber < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@GetPrescriptionRequestPage(GetNextPageNumber()).Url">
+                            @(GetPrescriptionRequestPage(GetNextPageNumber()).Number + 1)
+                        </a>
+                    </li>
+
+                    @if (GetNextPageNumber() != totalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@GetPrescriptionRequestPage(totalPages).Url">
+                                @(totalPages + 1)
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item">
+                        <a class="page-link" href="@GetPrescriptionRequestPage(GetNextPageNumber()).Url">
+                            <span>&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
     }
 </div>
