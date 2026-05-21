@@ -43,6 +43,8 @@ namespace HPTourist
 
          builder.Services.AddHttpContextAccessor();
          builder.Services.AddScoped<IPatientAccountService, PatientAccountService>();
+         builder.Services.AddScoped<IFarmacotherapeutischKompasUrlService, FarmacotherapeutischKompasUrlService>();
+         builder.Services.AddHttpClient<IFarmacotherapeutischKompasScraperService, FarmacotherapeutischKompasScraperService>();
          builder.Services.AddScoped<IPrescriptionRequestService, PrescriptionRequestService>();
          builder.Services.AddScoped<IPatientService, PatientService>();
          builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
