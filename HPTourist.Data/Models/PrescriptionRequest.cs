@@ -10,6 +10,3 @@ public class PrescriptionRequest
     public DateTime Date { get; set; }
     public enum Status { Pending, Processed, Rejected }
 }
-
-
-

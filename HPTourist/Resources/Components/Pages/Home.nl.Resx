@@ -123,4 +123,7 @@
   <data name="WelcomeMessage" xml:space="preserve">
     <value>Bent u verdwaald in een vreemd land? Bent u Pools? Heeft u medicijnen nodig? U bent op de juiste plek!</value>
   </data>
+   <data name="OpenPrescriptionRequests" xml:space="preserve">
+    <value>Openstaande aanvragen herhaalrecepten</value>
+  </data>
 </root>

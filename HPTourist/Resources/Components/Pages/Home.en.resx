@@ -124,4 +124,7 @@ You came to the right place!</value>
   <data name="WelcomeTitle" xml:space="preserve">
     <value>Welcome to Huisartsenpraktijk Tourist Doctor Amsterdam!</value>
   </data>
+   <data name="OpenPrescriptionRequests" xml:space="preserve">
+    <value>Open prescription requests</value>
+  </data>
 </root>
