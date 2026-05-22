@@ -5,8 +5,9 @@ using System.Globalization;
 using HPTourist.Data.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using PR = HPTourist.Data.Models.PrescriptionRequest;
 
-namespace HPTourist.Components.Pages;
+namespace HPTourist.Components.Pages.PrescriptionRequest;
 
 
 public partial class PrescriptionRequestPage : ComponentBase
@@ -32,7 +33,7 @@ public partial class PrescriptionRequestPage : ComponentBase
         Medicines = []
     };
 
-    private PrescriptionRequest? request;
+    private PR? request;
 
     void AddMedicine(Medicine medicine)
     {
@@ -122,7 +123,7 @@ public partial class PrescriptionRequestPage : ComponentBase
 
             Db.Prescriptions.Add(newPrescription);
 
-            request.RequestStatus = PrescriptionRequest.Status.Processed;
+            request.RequestStatus = PR.Status.Processed;
 
             await Db.SaveChangesAsync();
 

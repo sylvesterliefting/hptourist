@@ -20,13 +20,6 @@ builder.Services.AddScoped(sp => new HttpClient
     BaseAddress = new Uri(builder.Configuration["BaseAddress"] ?? "https://localhost:5001/")
 });
 
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    DatabaseSeeder.SeedDatabase(services);
-}
 builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Resources";
@@ -59,6 +52,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    DatabaseSeeder.SeedDatabase(services);
+}
 
 app.MapControllers();
 
