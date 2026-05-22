@@ -117,13 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="WelcomeTitle" xml:space="preserve">
-    <value>Witamy w Huisartsenpraktijk Tourist Doctor Amsterdam!</value>
+  <data name="Loading" xml:space="preserve">
+    <value>Laden...</value>
   </data>
-  <data name="WelcomeMessage" xml:space="preserve">
-    <value>Czy zgubiłeś się w obcym kraju? Czy jesteś Polakiem? Czy potrzebujesz leków? Trafiłeś we właściwe miejsce!</value>
+  <data name="NoPrescriptionRequests" xml:space="preserve">
+    <value>Geen aanvragen voor herhaalrecepten.</value>
   </data>
-   <data name="OpenPrescriptionRequests" xml:space="preserve">
-    <value>Otwarte prośby o recepty</value>
+  <data name="Patient" xml:space="preserve">
+    <value>Patiënt</value>
+  </data>
+   <data name="YearsOld" xml:space="preserve">
+    <value>jaar</value>
+  </data>
+   <data name="Date" xml:space="preserve">
+    <value>Datum</value>
   </data>
 </root>

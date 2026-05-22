@@ -10,7 +10,21 @@
 
 @Localizer["WelcomeMessage"]
 
+<AuthorizeView>
+    <Authorized>
+        @* TODO: Only show when loggin-in user is a doctor. *@
+        <h3 class="mt-3">@Localizer["OpenPrescriptionRequests"]</h3>
+        <PrescriptionRequests PageNumber="@PrescriptionRequestPageNumber" PageParameterName="prescriptionRequestPage" StatusFilter="statusList" />
+    </Authorized>
+</AuthorizeView>
+
 @code {
     [SupplyParameterFromQuery]
     public string? Msg { get; set; }
+
+    [SupplyParameterFromQuery(Name = "prescriptionRequestPage")]
+    public int PrescriptionRequestPageNumber { get; set; } = 0;
+
+    public List<PrescriptionRequest.Status> statusList = new
+        List<PrescriptionRequest.Status> { PrescriptionRequest.Status.Pending };
 }
