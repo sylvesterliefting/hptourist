@@ -1,0 +1,14 @@
+﻿@page "/me"
+@attribute [Authorize]
+@inject IStringLocalizer<Me> StringLocalizer
+
+<PageTitle>@StringLocalizer["my_account"]</PageTitle>
+
+<div class="row">
+    <div class="col-6">
+        <h1>@StringLocalizer["my_account"]</h1>
+        <div class="card p-4 mt-3">
+            <a href="/change-password">@StringLocalizer["change_my_password"]</a>
+        </div>
+    </div>
+</div>

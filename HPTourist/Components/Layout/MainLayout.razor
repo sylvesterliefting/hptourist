@@ -10,7 +10,9 @@
            <LanguageSwitcher />
         </div>
 
-        <article class="content px-4">
+        <article class="content px-4">            
+            <FlashMessage Message="@Msg" />
+
             @Body
         </article>
     </main>
@@ -21,3 +23,8 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Msg { get; set; }
+}
